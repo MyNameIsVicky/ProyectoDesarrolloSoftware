@@ -22,5 +22,6 @@ namespace ProyectoDesarrolloSoftware.Models
         [Required]
         private string password { get; set; }
 
+     
     }
 }
