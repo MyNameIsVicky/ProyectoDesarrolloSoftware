@@ -40,15 +40,28 @@
         const contrasena = document.getElementById('password').value;
         const errorDiv = document.getElementById('errorMessage');
 
+
+
     
-        if (usuario === "usuarioPrueba" && contrasena === "1234") {
+        if (usuario === "usuarioAdmin" && contrasena === "1234") {
             errorDiv.classList.add('d-none');
            
-            window.location.href = '/Home/VistaAdministracion';
+            window.location.href = '/Administracion/VistaAdministracion';
         } else {
             
             errorDiv.classList.remove('d-none');
         }
+        if (usuario === "usuarioMedico" && contrasena === "1234") {
+            errorDiv.classList.add('d-none');
+           
+            window.location.href = '/Medico/VistaMedicos';
+        } else {
+            
+            errorDiv.classList.remove('d-none');
+        }
+
+
+
     });
 </script>
 
