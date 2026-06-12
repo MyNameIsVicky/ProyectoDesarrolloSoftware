@@ -13,7 +13,7 @@ namespace ProyectoDesarrolloSoftware.Models
             public string Nombre { get; set; }
 
             // Relación Muchos a Muchos con Médicos
-            public virtual ICollection<MedicoEspecialdad> Medicos { get; set; } = new List<MedicoEspecialdad>();
+            public virtual ICollection<MedicoEspecialidad> Medicos { get; set; } = new List<MedicoEspecialidad>();
         
     }
 }

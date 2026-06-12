@@ -22,9 +22,9 @@ namespace ProyectoDesarrolloSoftware.Models
         [Required]
         public string UsuarioCedula { get; set; }
         [ForeignKey("UsuarioCedula")]
-        // public virtual Usuario Usuario { get; set; }
 
-      
+        // public virtual Usuario Usuario { get; set; }
+             
         public virtual IList<Especialidad> Especialidades { get; set; } = new List<Especialidad>();
     }
 }
