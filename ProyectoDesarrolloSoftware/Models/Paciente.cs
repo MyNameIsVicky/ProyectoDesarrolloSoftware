@@ -2,6 +2,7 @@
 
 namespace ProyectoDesarrolloSoftware.Models
 {
+    //comitt prueba isaac
     public class Paciente
     {
         [Key]
@@ -21,5 +22,6 @@ namespace ProyectoDesarrolloSoftware.Models
         [Required]
         private string password { get; set; }
 
+     
     }
 }
