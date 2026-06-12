@@ -1,7 +1,12 @@
-﻿namespace ProyectoDesarrolloSoftware.Models
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace ProyectoDesarrolloSoftware.Models
 {
     // Clase intermedia entre Medico y Especialidad para representar la relación Muchos a Muchos
-    public class MedicoEspecialdad
+
+    // Crear la clave compuesta manualmente, ya que no se detecta automáticamente 
+    [PrimaryKey(nameof(MedicoId), nameof(EspecialidadId))]
+    public class MedicoEspecialidad
     {
         public int MedicoId { get; set; }
 
@@ -10,6 +15,5 @@
         public int EspecialidadId { get; set; }
 
         public Especialidad Especialidad { get; set; } = null;
-
     }
 }

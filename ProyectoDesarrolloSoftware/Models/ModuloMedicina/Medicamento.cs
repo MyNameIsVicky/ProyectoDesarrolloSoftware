@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace ProyectoDesarrolloSoftware.Models
+namespace ProyectoDesarrolloSoftware.Models.ModuloMedicina
 {
     public class Medicamento
     {
