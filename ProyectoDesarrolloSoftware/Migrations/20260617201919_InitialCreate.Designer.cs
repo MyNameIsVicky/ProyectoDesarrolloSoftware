@@ -12,8 +12,8 @@ using ProyectoDesarrolloSoftware.Data;
 namespace ProyectoDesarrolloSoftware.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260612215207_prueba")]
-    partial class prueba
+    [Migration("20260617201919_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -236,12 +236,7 @@ namespace ProyectoDesarrolloSoftware.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<int?>("UsuarioCedula")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("UsuarioCedula");
 
                     b.ToTable("Especialidades");
                 });
@@ -577,13 +572,6 @@ namespace ProyectoDesarrolloSoftware.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("ProyectoDesarrolloSoftware.Models.Especialidad", b =>
-                {
-                    b.HasOne("ProyectoDesarrolloSoftware.Models.Medico", null)
-                        .WithMany("Especialidades")
-                        .HasForeignKey("UsuarioCedula");
-                });
-
             modelBuilder.Entity("ProyectoDesarrolloSoftware.Models.Expedientes.ExpedienteMedicamento", b =>
                 {
                     b.HasOne("ProyectoDesarrolloSoftware.Models.Medico", "Medico")
@@ -691,7 +679,7 @@ namespace ProyectoDesarrolloSoftware.Migrations
                         .IsRequired();
 
                     b.HasOne("ProyectoDesarrolloSoftware.Models.Medico", "Medico")
-                        .WithMany()
+                        .WithMany("MedicosEspecialidades")
                         .HasForeignKey("MedicoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -708,7 +696,7 @@ namespace ProyectoDesarrolloSoftware.Migrations
 
             modelBuilder.Entity("ProyectoDesarrolloSoftware.Models.Medico", b =>
                 {
-                    b.Navigation("Especialidades");
+                    b.Navigation("MedicosEspecialidades");
                 });
 
             modelBuilder.Entity("ProyectoDesarrolloSoftware.Models.Paciente", b =>
