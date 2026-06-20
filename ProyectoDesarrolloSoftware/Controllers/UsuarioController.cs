@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using ProyectoDesarrolloSoftware.Data;
+using ProyectoDesarrolloSoftware.Models;
+using ProyectoDesarrolloSoftware.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using ProyectoDesarrolloSoftware.Data;
-using ProyectoDesarrolloSoftware.Models;
-using ProyectoDesarrolloSoftware.Models.ViewModels;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace ProyectoDesarrolloSoftware.Controllers
 {
@@ -12,11 +14,13 @@ namespace ProyectoDesarrolloSoftware.Controllers
     public class UsuarioController : Controller
     {
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ApplicationDbContext _context;
 
-        public UsuarioController(UserManager<IdentityUser> userManager, ApplicationDbContext context)
+        public UsuarioController(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, ApplicationDbContext context)
         {
             _userManager = userManager;
+            _roleManager = roleManager;
             _context = context;
         }
 
@@ -29,24 +33,37 @@ namespace ProyectoDesarrolloSoftware.Controllers
             {
                 var roles = await _userManager.GetRolesAsync(u);
                 var bloqueado = await _userManager.IsLockedOutAsync(u);
+                var perfil = roles.FirstOrDefault() ?? "Sin perfil";
 
-                // Obtener datos del paciente vinculado si existe
-                var paciente = _context.Pacientes.FirstOrDefault(p => p.UsuarioId == u.Id);
+                string nombre = u.Email ?? u.UserName ?? "";
+                string cedula = "—";
+
+                if (perfil == "Paciente")
+                {
+                    var paciente = await _context.Pacientes.FirstOrDefaultAsync(p => p.UsuarioId == u.Id);
+                    nombre = paciente?.NombreCompleto ?? nombre;
+                    cedula = paciente?.Cedula ?? "—";
+                }
+                else if (perfil == "Medico")
+                {
+                    var medico = await _context.Medicos.FirstOrDefaultAsync(m => m.UsuarioCedula == u.Id);
+                    nombre = medico?.NombreCompleto ?? nombre;
+                    cedula = medico?.CedulaFisica ?? "—";
+                }
 
                 vms.Add(new UsuarioViewModel
                 {
                     Id = u.Id,
                     Correo = u.Email ?? "",
-                    NombreCompleto = paciente?.NombreCompleto ?? u.UserName ?? "",
-                    Cedula = paciente?.Cedula ?? "",
-                    Perfil = roles.FirstOrDefault() ?? "Paciente",
+                    NombreCompleto = nombre,
+                    Cedula = cedula,
+                    Perfil = perfil,
                     Bloqueado = bloqueado
                 });
             }
 
             return View(vms);
         }
-
 
         [HttpGet]
         public async Task<IActionResult> Create()
@@ -58,57 +75,33 @@ namespace ProyectoDesarrolloSoftware.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(UsuarioViewModel vm)
         {
-            if (!ModelState.IsValid)
-            {
-                vm = await BuildVM(vm);
-                return View(vm);
-            }
+            if (!ModelState.IsValid) { vm = await BuildVM(vm); return View(vm); }
 
-            var user = new IdentityUser
-            {
-                UserName = vm.Correo,
-                Email = vm.Correo,
-                EmailConfirmed = true
-            };
-
+            var user = new IdentityUser { UserName = vm.Correo, Email = vm.Correo, EmailConfirmed = true };
             var result = await _userManager.CreateAsync(user, vm.Password!);
             if (!result.Succeeded)
             {
-                foreach (var error in result.Errors)
-                    ModelState.AddModelError("", error.Description);
-
+                foreach (var e in result.Errors) ModelState.AddModelError("", e.Description);
                 vm = await BuildVM(vm);
                 return View(vm);
             }
 
             await _userManager.AddToRoleAsync(user, vm.Perfil);
 
-            // Si el perfil es Paciente, crear registro en la tabla Pacientes
             if (vm.Perfil == "Paciente")
             {
-                _context.Pacientes.Add(new Paciente
-                {
-                    Cedula = vm.Cedula,
-                    NombreCompleto = vm.NombreCompleto,
-                    Correo = vm.Correo,
-                    UsuarioId = user.Id
-                });
+                _context.Pacientes.Add(new Paciente { Cedula = vm.Cedula, NombreCompleto = vm.NombreCompleto, Correo = vm.Correo, UsuarioId = user.Id });
                 await _context.SaveChangesAsync();
             }
-
-            // Si el perfil es Médico, vincular el usuario al médico seleccionado
-            if (vm.Perfil == "Medico" && vm.MedicoId.HasValue)
+            else if (vm.Perfil == "Medico" && vm.MedicoId.HasValue)
             {
                 var medico = await _context.Medicos.FindAsync(vm.MedicoId.Value);
-                if (medico != null)
-                {
-                    medico.UsuarioCedula = user.Id;
-                    await _context.SaveChangesAsync();
-                }
+                if (medico != null) { medico.UsuarioCedula = user.Id; await _context.SaveChangesAsync(); }
             }
 
             return RedirectToAction(nameof(Index));
         }
+
         [HttpGet]
         public async Task<IActionResult> Edit(string id)
         {
@@ -116,19 +109,35 @@ namespace ProyectoDesarrolloSoftware.Controllers
             if (user == null) return NotFound();
 
             var roles = await _userManager.GetRolesAsync(user);
-            var paciente =  _context.Pacientes.FirstOrDefault(p => p.UsuarioId == id);
+            var perfil = roles.FirstOrDefault() ?? "Sin perfil";
+
+            string nombre = "";
+            string cedula = "";
+
+            if (perfil == "Paciente")
+            {
+                var paciente = await _context.Pacientes.FirstOrDefaultAsync(p => p.UsuarioId == id);
+                nombre = paciente?.NombreCompleto ?? "";
+                cedula = paciente?.Cedula ?? "";
+            }
+            else if (perfil == "Medico")
+            {
+                var medico = await _context.Medicos.FirstOrDefaultAsync(m => m.UsuarioCedula == id);
+                nombre = medico?.NombreCompleto ?? "";
+                cedula = medico?.NumeroColegiado ?? "";
+            }
+          
 
             var vm = new UsuarioViewModel
             {
                 Id = user.Id,
                 Correo = user.Email ?? "",
-                NombreCompleto = paciente?.NombreCompleto ?? "",
-                Cedula = paciente?.Cedula ?? "",
-                Perfil = roles.FirstOrDefault() ?? "Paciente"
+                NombreCompleto = nombre,
+                Cedula = cedula,
+                Perfil = perfil
             };
 
-            vm = await BuildVM(vm);
-            return View(vm);
+            return View(await BuildVM(vm));
         }
 
         [HttpPost]
@@ -142,15 +151,36 @@ namespace ProyectoDesarrolloSoftware.Controllers
             user.UserName = vm.Correo;
             await _userManager.UpdateAsync(user);
 
-            // Actualizar paciente si aplica
-            var paciente = _context.Pacientes.FirstOrDefault(p => p.UsuarioId == vm.Id);
-            if (paciente != null)
+            // Actualizar rol si cambió
+            var rolesActuales = await _userManager.GetRolesAsync(user);
+            if (!rolesActuales.Contains(vm.Perfil))
             {
-                paciente.NombreCompleto = vm.NombreCompleto;
-                paciente.Cedula = vm.Cedula;
-                paciente.Correo = vm.Correo;
-                await _context.SaveChangesAsync();
+                await _userManager.RemoveFromRolesAsync(user, rolesActuales);
+                await _userManager.AddToRoleAsync(user, vm.Perfil);
             }
+
+            if (vm.Perfil == "Paciente")
+            {
+                var paciente = await _context.Pacientes.FirstOrDefaultAsync(p => p.UsuarioId == vm.Id);
+                if (paciente != null)
+                {
+                    paciente.NombreCompleto = vm.NombreCompleto;
+                    paciente.Cedula = vm.Cedula;
+                    paciente.Correo = vm.Correo;
+                    await _context.SaveChangesAsync();
+                }
+            }
+            else if (vm.Perfil == "Medico")
+            {
+                var medico = await _context.Medicos.FirstOrDefaultAsync(m => m.UsuarioCedula == vm.Id);
+                if (medico != null)
+                {
+                    medico.NombreCompleto = vm.NombreCompleto;
+                    medico.NumeroColegiado = vm.Cedula;
+                    await _context.SaveChangesAsync();
+                }
+            }
+            // Admin no tiene tabla propia, solo se actualiza correo arriba
 
             return RedirectToAction(nameof(Index));
         }
@@ -161,22 +191,13 @@ namespace ProyectoDesarrolloSoftware.Controllers
             var user = await _userManager.FindByIdAsync(id);
             if (user == null) return NotFound();
 
-            var esBloqueado = await _userManager.IsLockedOutAsync(user);
-
-            if (esBloqueado)
-            {
-                // Desbloquear: quitar el lockout
+            if (await _userManager.IsLockedOutAsync(user))
                 await _userManager.SetLockoutEndDateAsync(user, null);
-            }
             else
-            {
-                // Bloquear: lockout por 100 años (indefinido)
                 await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.UtcNow.AddYears(100));
-            }
 
             return RedirectToAction(nameof(Index));
         }
-
 
         [HttpGet]
         public async Task<IActionResult> Delete(string id)
@@ -184,8 +205,7 @@ namespace ProyectoDesarrolloSoftware.Controllers
             var user = await _userManager.FindByIdAsync(id);
             if (user == null) return NotFound();
             var roles = await _userManager.GetRolesAsync(user);
-            var vm = new UsuarioViewModel { Id = user.Id, Correo = user.Email ?? "", Perfil = roles.FirstOrDefault() ?? "" };
-            return View(vm);
+            return View(new UsuarioViewModel { Id = user.Id, Correo = user.Email ?? "", Perfil = roles.FirstOrDefault() ?? "" });
         }
 
         [HttpPost]
@@ -198,11 +218,12 @@ namespace ProyectoDesarrolloSoftware.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-
         private async Task<UsuarioViewModel> BuildVM(UsuarioViewModel vm)
         {
-            vm.MedicosList = _context.Medicos.OrderBy(m => m.NombreCompleto).Select(m => new SelectListItem 
-            { Text = m.NombreCompleto, Value = m.Id.ToString() }).ToList();
+            vm.MedicosList = await _context.Medicos
+                .OrderBy(m => m.NombreCompleto)
+                .Select(m => new SelectListItem { Text = m.NombreCompleto, Value = m.Id.ToString() })
+                .ToListAsync();
             return vm;
         }
     }
