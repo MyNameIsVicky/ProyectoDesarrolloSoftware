@@ -1,67 +1,14 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Bienvenida";
 }
 
-<div class="text-center">
-    <h2 class="display-4">Centro Médico Carlos Monge Alfaro</h2>
-    <div class="row justify-content-center">
-        <div class="col-md-4 card p-4 shadow-sm">
-            <form id="loginForm">
-                <h3 class="h5 mb-3 text-secondary">Iniciar Sesión</h3>
-                
-                <div class="form-group mb-3 text-start">
-                    <label for="username" class="form-label font-weight-bold">Usuario</label>
-                    <input type="text" id="username" name="Username" class="form-control" placeholder="Ingrese su usuario" required />
-                </div>
-                
-                <div class="form-group mb-4 text-start">
-                    <label for="password" class="form-label font-weight-bold">Contraseña</label>
-                    <input type="password" id="password" name="Password" class="form-control" placeholder="Ingrese su contraseña" required />
-                </div>
-                
-                <div id="errorMessage" class="alert alert-danger d-none mb-3" role="alert">
-                    Usuario o contraseña incorrectos.
-                </div>
+<div class="text-center mt-5">
+    <h1 class="display-4">Bienvenido al Centro Médico Carlos Monge Alfaro</h1>
+    <p class="lead mt-4">Sistema integral de gestión de pacientes y especialidades.</p>
 
-                <button type="submit" class="btn btn-primary w-100">Ingresar</button>
-            </form>
-        </div>
+    <div class="mt-5">
+        <a asp-controller="Cuenta" asp-action="Login" class="btn btn-outline-primary btn-lg shadow">
+            Iniciar Sesión
+        </a>
     </div>
-
-    <hr class="my-4" />
 </div>
-
-<script>
-    // USUARIO CREADO DE FORMA LOCAL SOLO PARA PRUEBA DE INICIO DE SESIÓN, SE DEBE REEMPLAZAR POR UN MÉTODO DE AUTENTICACIÓN REAL EN EL FUTURO
-    document.getElementById('loginForm').addEventListener('submit', function (e) {
-        e.preventDefault(); 
-
-        const usuario = document.getElementById('username').value;
-        const contrasena = document.getElementById('password').value;
-        const errorDiv = document.getElementById('errorMessage');
-
-
-
-    
-        if (usuario === "usuarioAdmin" && contrasena === "1234") {
-            errorDiv.classList.add('d-none');
-           
-            window.location.href = '/Administracion/VistaAdministracion';
-        } else {
-            
-            errorDiv.classList.remove('d-none');
-        }
-        if (usuario === "usuarioMedico" && contrasena === "1234") {
-            errorDiv.classList.add('d-none');
-           
-            window.location.href = '/Medico/VistaMedicos';
-        } else {
-            
-            errorDiv.classList.remove('d-none');
-        }
-
-
-
-    });
-</script>
-

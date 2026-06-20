@@ -12,7 +12,7 @@
     </div>
 
     <div class="mb-4 text-start">
-        <a asp-action="Create" asp-controller="Medico" class="btn btn-primary px-4 shadow-sm">
+        <a asp-action="Create" asp-controller="Medico" class="btn btn-outline-light px-4 shadow-sm">
             + Registrar Nuevo Médico
         </a>
     </div>
@@ -37,17 +37,17 @@
                         <tr>
                             <td><strong>@medico.Id</strong></td>
                             <td>
-                                <img src="@medico.FotoUrl" alt="Foto" class="rounded-circle shadow-sm" style="width:45px; height:45px; object-fit:cover;" />
+                                <img src="@medico.FotoUrl" alt="Foto" class="rounded-circle shadow-sm" style="width:100px; height:100px; object-fit:cover;" />
                             </td>
                             <td class="font-weight-bold">@medico.NombreCompleto</td>
                             <td><span class="badge bg-light text-dark border">@medico.NumeroColegiado</span></td>
-                            <td>@medico.UsuarioCedula</td>
+                            <td>@medico.CedulaFisica</td>
                             <td>
                                 @if (medico.MedicosEspecialidades != null && medico.MedicosEspecialidades.Any())
                                 {
                                     foreach (var me in medico.MedicosEspecialidades)
                                     {
-                                        <span class="badge bg-info text-dark me-1">@me.Especialidad.Nombre</span>
+                                        <span class="badge bg-light text-dark border">@me.Especialidad.Nombre</span>
                                     }
                                 }
                                 else
@@ -57,10 +57,10 @@
                             </td>
                             <td class="text-end">
                                 <div class="d-flex gap-2 justify-content-end">
-                                    <a asp-action="Edit" asp-controller="Medico" asp-route-id="@medico.Id" class="btn btn-outline-secondary btn-sm px-3">
+                                    <a asp-action="Edit" asp-controller="Medico" asp-route-id="@medico.Id" class="btn btn-outline-primary btn-sm px-3">
                                         Editar
                                     </a>
-                                    <a class="btn btn-outline-danger btn-sm px-3" onclick="confirmDelete(@medico.Id)">
+                                    <a asp-action="Delete" asp-controller="Medico" asp-route-id="@medico.Id" class="btn btn-outline-danger btn-sm px-3">
                                         Eliminar
                                     </a>
                                 </div>
@@ -73,7 +73,7 @@
     </div>
 
     <div class="text-center mb-5">
-        <a class="btn btn-danger px-4 shadow-sm" href="/Administracion/VistaAdministracion" role="button">
+        <a class="btn btn-outline-light px-4 shadow-sm" href="/Administracion/VistaAdministracion" role="button">
             Volver al Panel de Administración
         </a>
     </div>

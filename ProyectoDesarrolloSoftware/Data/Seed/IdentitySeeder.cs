@@ -7,7 +7,7 @@ namespace ProyectoDesarrolloSoftware.Data.Seed
     public class IdentitySeeder
     {
 
-        public static async Task seedAsync(ServiceProvider sevices)
+        public static async Task seedAsync(IServiceProvider sevices)
         {
             var roleManager = sevices.GetRequiredService<RoleManager<IdentityRole>>();
             var userManager = sevices.GetRequiredService<UserManager<IdentityUser>>();
@@ -68,14 +68,14 @@ namespace ProyectoDesarrolloSoftware.Data.Seed
             }
 
             // Usuario Paciente de prueba
-            var pacienteUser = await userManager.FindByEmailAsync("paciente@medicalsystem.com");
+            var pacienteUser = await userManager.FindByEmailAsync("paciente@proyecto.com");
 
             if (pacienteUser == null)
             {
                 pacienteUser = new IdentityUser
                 {
                     UserName = "paciente",
-                    Email = "paciente@medicalsystem.com",
+                    Email = "paciente@proyecto.com",
                     EmailConfirmed = true
                 };
 
