@@ -8,23 +8,27 @@ namespace ProyectoDesarrolloSoftware.Models
         [Key]
         public int Id { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "El nombre es obligatorio")]
         [StringLength(150)]  
         public string NombreCompleto { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "El número de colegiado es obligatorio")]
         [StringLength(50)]
         public string NumeroColegiado { get; set; }
 
         public string FotoUrl { get; set; } // Guarda la ruta de la imagen 
 
-       
+
+        [Required(ErrorMessage = "La cédula es obligatoria")]
+        [StringLength(50)]
+        public string CedulaFisica { get; set; } 
+
         [Required]
-        public string UsuarioCedula { get; set; }
-        
+        public string UsuarioCedula { get; set; } // ID automatico para Identity
+
 
         // public virtual Usuario Usuario { get; set; }
-             
+
         public virtual IList<MedicoEspecialidad> MedicosEspecialidades { get; set; } = new List<MedicoEspecialidad>();
     }
 }
