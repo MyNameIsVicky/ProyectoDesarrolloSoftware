@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ProyectoDesarrolloSoftware.Data;
 using ProyectoDesarrolloSoftware.Models;
-using ProyectoDesarrolloSoftware.Models.ViewModel;
+using ProyectoDesarrolloSoftware.Models.ViewModels;
 
 namespace ProyectoDesarrolloSoftware.Controllers
 {
@@ -34,12 +34,12 @@ namespace ProyectoDesarrolloSoftware.Controllers
         public async Task<IActionResult> Create()
         {
             await CargarEspecialidades();
-            return View(new MedicoVM());
+            return View(new MedicoViewModel());
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(MedicoVM medicoVM)
+        public async Task<IActionResult> Create(MedicoViewModel medicoVM)
         {
             
             ModelState.Remove("Medico.MedicosEspecialidades");
@@ -149,7 +149,7 @@ namespace ProyectoDesarrolloSoftware.Controllers
                 return NotFound();
             }
 
-            var medicoVM = new MedicoVM
+            var medicoVM = new MedicoViewModel
             {
                 Medico = medico,
                 EspecialidadesIds = medico.MedicosEspecialidades.Select(me => me.EspecialidadId).ToList()
@@ -160,7 +160,7 @@ namespace ProyectoDesarrolloSoftware.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(MedicoVM medicoVM)
+        public async Task<IActionResult> Edit(MedicoViewModel medicoVM)
         {
             ModelState.Remove("Medico.MedicosEspecialidades");
             ModelState.Remove("Username");

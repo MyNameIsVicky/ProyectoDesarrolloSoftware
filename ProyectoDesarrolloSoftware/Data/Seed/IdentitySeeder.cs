@@ -60,7 +60,7 @@ namespace ProyectoDesarrolloSoftware.Data.Seed
                     {
                         NombreCompleto = "Dr. Juan Pérez",
                         NumeroColegiado = "MED-001",
-                        UsuarioCedula = MedicoUser.Id
+                        UsuarioCedula = MedicoUser.Id,
                     };
                     context.Medicos.Add(medico);
                     await context.SaveChangesAsync();

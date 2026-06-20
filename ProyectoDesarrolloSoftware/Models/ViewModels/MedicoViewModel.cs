@@ -1,11 +1,13 @@
-﻿using System.ComponentModel.DataAnnotations;
-using ProyectoDesarrolloSoftware.Models;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using System.ComponentModel.DataAnnotations;
 
-namespace ProyectoDesarrolloSoftware.Models.ViewModel
-{
-    public class MedicoVM
+namespace ProyectoDesarrolloSoftware.Models.ViewModels
+{    
+    // ViewModel para crear/editar un Médico con selección múltiple de especialidades
+        public class MedicoViewModel
     {
-        //Campos para la creación de usuario y autenticación
+         //Campos para la creación de usuario y autenticación
         [Required(ErrorMessage = "El nombre de usuario es obligatorio.")]
         public string Username { get; set; }
 
