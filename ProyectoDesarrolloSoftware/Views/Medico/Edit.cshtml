@@ -1,0 +1,62 @@
+﻿@model ProyectoDesarrolloSoftware.Models.ViewModel.MedicoVM
+
+@{
+    ViewData["Title"] = "Editar Médico";
+}
+
+<div class="container mt-5">
+    <div class="text-center mb-4">
+        <h2 class="display-4">Modificar Registro</h2>
+        <p class="text-muted lead">Centro Médico Carlos Monge Alfaro</p>
+        <hr class="w-25 mx-auto" />
+    </div>
+
+    <div class="row justify-content-center mb-5">
+        <div class="col-md-6">
+            <div class="card p-4 shadow-sm border-0">
+                <form asp-action="Edit" method="post">
+                    <input type="hidden" asp-for="Medico.Id" />
+
+                    <div class="form-group mb-3 text-start">
+                        <label asp-for="Medico.NombreCompleto" class="form-label font-weight-bold">Nombre Completo</label>
+                        <input asp-for="Medico.NombreCompleto" class="form-control" />
+                        <span asp-validation-for="Medico.NombreCompleto" class="text-danger small"></span>
+                    </div>
+
+                    <div class="form-group mb-3 text-start">
+                        <label asp-for="Medico.NumeroColegiado" class="form-label font-weight-bold">Número de Colegiado</label>
+                        <input asp-for="Medico.NumeroColegiado" class="form-control" />
+                        <span asp-validation-for="Medico.NumeroColegiado" class="text-danger small"></span>
+                    </div>
+
+                    <div class="form-group mb-3 text-start">
+                        <label asp-for="Medico.UsuarioCedula" class="form-label font-weight-bold">Cédula de Identidad</label>
+                        <input asp-for="Medico.UsuarioCedula" class="form-control" />
+                        <span asp-validation-for="Medico.UsuarioCedula" class="text-danger small"></span>
+                    </div>
+
+                    <div class="form-group mb-3 text-start">
+                        <label asp-for="Medico.FotoUrl" class="form-label font-weight-bold">URL de Fotografía</label>
+                        <input asp-for="Medico.FotoUrl" class="form-control" />
+                    </div>
+
+                    <div class="form-group mb-4 text-start">
+                        <label class="form-label font-weight-bold">Especialidades Médicas</label>
+                        <p class="text-muted small mb-2">Modifique presionando Ctrl (o Cmd en Mac) para agregar/remover opciones:</p>
+                        <select asp-for="EspecialidadesIds" asp-items="@ViewBag.Especialidades" class="form-select" multiple="multiple" style="height: 130px;"></select>
+                        <span asp-validation-for="EspecialidadesIds" class="text-danger small"></span>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary w-100 py-2">Actualizar Cambios</button>
+                        <a asp-action="Index" class="btn btn-outline-secondary w-100 py-2">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

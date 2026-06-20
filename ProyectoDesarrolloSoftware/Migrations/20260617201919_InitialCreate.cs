@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ProyectoDesarrolloSoftware.Migrations
 {
     /// <inheritdoc />
-    public partial class prueba : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -48,6 +48,19 @@ namespace ProyectoDesarrolloSoftware.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Especialidades",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Nombre = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Especialidades", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -230,22 +243,27 @@ namespace ProyectoDesarrolloSoftware.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Especialidades",
+                name: "MedicoEspecialidades",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Nombre = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    UsuarioCedula = table.Column<int>(type: "int", nullable: true)
+                    MedicoId = table.Column<int>(type: "int", nullable: false),
+                    EspecialidadId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Especialidades", x => x.Id);
+                    table.PrimaryKey("PK_MedicoEspecialidades", x => new { x.MedicoId, x.EspecialidadId });
                     table.ForeignKey(
-                        name: "FK_Especialidades_Medicos_UsuarioCedula",
-                        column: x => x.UsuarioCedula,
+                        name: "FK_MedicoEspecialidades_Especialidades_EspecialidadId",
+                        column: x => x.EspecialidadId,
+                        principalTable: "Especialidades",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_MedicoEspecialidades_Medicos_MedicoId",
+                        column: x => x.MedicoId,
                         principalTable: "Medicos",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -384,30 +402,6 @@ namespace ProyectoDesarrolloSoftware.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateTable(
-                name: "MedicoEspecialidades",
-                columns: table => new
-                {
-                    MedicoId = table.Column<int>(type: "int", nullable: false),
-                    EspecialidadId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_MedicoEspecialidades", x => new { x.MedicoId, x.EspecialidadId });
-                    table.ForeignKey(
-                        name: "FK_MedicoEspecialidades_Especialidades_EspecialidadId",
-                        column: x => x.EspecialidadId,
-                        principalTable: "Especialidades",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_MedicoEspecialidades_Medicos_MedicoId",
-                        column: x => x.MedicoId,
-                        principalTable: "Medicos",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -446,11 +440,6 @@ namespace ProyectoDesarrolloSoftware.Migrations
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Especialidades_UsuarioCedula",
-                table: "Especialidades",
-                column: "UsuarioCedula");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ExpedienteMedicamentos_MedicoId",

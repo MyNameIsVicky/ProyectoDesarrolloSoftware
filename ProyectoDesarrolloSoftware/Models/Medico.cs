@@ -9,7 +9,7 @@ namespace ProyectoDesarrolloSoftware.Models
         public int Id { get; set; }
 
         [Required]
-        [StringLength(150)]
+        [StringLength(150)]  
         public string NombreCompleto { get; set; }
 
         [Required]
@@ -21,10 +21,10 @@ namespace ProyectoDesarrolloSoftware.Models
        
         [Required]
         public string UsuarioCedula { get; set; }
-        [ForeignKey("UsuarioCedula")]
+        
 
         // public virtual Usuario Usuario { get; set; }
              
-        public virtual IList<Especialidad> Especialidades { get; set; } = new List<Especialidad>();
+        public virtual IList<MedicoEspecialidad> MedicosEspecialidades { get; set; } = new List<MedicoEspecialidad>();
     }
 }
