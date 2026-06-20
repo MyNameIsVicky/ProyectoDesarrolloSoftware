@@ -9,7 +9,7 @@ using ProyectoDesarrolloSoftware.Models.ViewModel;
 
 namespace ProyectoDesarrolloSoftware.Controllers
 {
-    [Authorize(Roles = "Administrador")]
+    [Authorize(Roles = "Administrador, Medico")]
     public class MedicoController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -20,6 +20,12 @@ namespace ProyectoDesarrolloSoftware.Controllers
         {
             _context = context;
             _userManager = userManager;
+        }
+
+        [Authorize(Roles = "Medico")]
+        public IActionResult VistaMedicos()
+        {
+            return View();
         }
 
         public async Task<IActionResult> Index()
