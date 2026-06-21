@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ProyectoDesarrolloSoftware.Controllers
@@ -75,6 +76,12 @@ namespace ProyectoDesarrolloSoftware.Controllers
             }
 
             return RedirectToAction("Index", "Home");
+        }
+
+        [AllowAnonymous]
+        public IActionResult AccessDenied(string? returnUrl = null)
+        {
+            return View();
         }
     }
 }

@@ -1,0 +1,76 @@
+﻿@model IEnumerable<ProyectoDesarrolloSoftware.Models.ModuloMedicina.Tratamiento>
+
+@{
+    ViewData["Title"] = "Gestión de Tratamientos";
+}
+
+<div class="container mt-5">
+    <div class="text-center mb-4">
+        <h2 class="display-4 fw-bold text-primary">Tratamientos</h2>
+        <p class="text-muted lead">Centro Médico Carlos Monge Alfaro</p>
+        <hr class="w-25 mx-auto text-primary" />
+    </div>
+
+    <div class="mb-4 text-start">
+        <a asp-action="Create" asp-controller="Tratamiento" class="btn btn-outline-light px-4 shadow-sm">
+            + Registrar Nuevo Tratamiento
+        </a>
+    </div>
+
+    <div class="card shadow-sm border-0 p-4 rounded-3">
+        <table class="table table-hover align-middle" id="tablaTratamientos">
+            <thead class="table-light">
+                <tr>
+                    <th class="fw-bold">Nombre</th>
+                    <th class="fw-bold">Descripción</th>
+                    <th class="text-end fw-bold" style="width: 250px;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var tratamiento in Model)
+                {
+                    <tr>
+                        <td class="align-middle badge bg-light text-dark border">@Html.DisplayFor(modelItem => tratamiento.Nombre)</td>
+                        <td class="align-middle">@Html.DisplayFor(modelItem => tratamiento.Descripcion)</td>
+                        <td class="text-end align-middle">
+                            <a asp-action="Edit" asp-route-id="@tratamiento.Id" class="btn btn-sm btn-outline-primary px-3 py-1 fw-bold rounded-2 me-1">Editar</a>
+                            <a asp-action="Delete" asp-route-id="@tratamiento.Id" class="btn btn-sm btn-outline-danger px-3 py-1 fw-bold rounded-2">Eliminar</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="text-center mb-5" style="padding-top: 20px;">
+        <a class="btn btn-outline-light px-4 shadow-sm" href="/Administracion/VistaAdministracion" role="button">
+            Volver al Panel de Administración
+        </a>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#tablaTratamientos').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
+                }
+            });
+        });
+    </script>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <script>
+            toastr.success('@(TempData["SuccessMessage"])');
+        </script>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <script>
+            toastr.error('@(TempData["ErrorMessage"])');
+        </script>
+    }
+}
