@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using ProyectoDesarrolloSoftware.Data;
+using ProyectoDesarrolloSoftware.Models;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,7 +14,7 @@ var jwtSettings = builder.Configuration.GetSection("Jwt");
 var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]!);
 
 // Identity configurado con reglas no tan 'estrictas' para que el Seeder funcione con las contraseñas simples.
-builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequireUppercase = false;
@@ -24,6 +25,8 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
+
+
 // Configuración de cookies para el sistema de Login MVC
 //PENDIENTE HACER ACCESS DENIED PARA CUANDO UN USUARIO INTENTE ACCEDER A UNA PÁGINA SIN PERMISOS
 builder.Services.ConfigureApplicationCookie(options =>
@@ -33,6 +36,7 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.AccessDeniedPath = "/Cuenta/AccessDenied";
     options.ExpireTimeSpan = TimeSpan.FromHours(8);
 });
+
 
 // Autenticación con JWT por si se necesita para la App Móvil (APIs)
 builder.Services.AddAuthentication()

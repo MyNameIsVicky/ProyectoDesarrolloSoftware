@@ -6,98 +6,93 @@ namespace ProyectoDesarrolloSoftware.Data.Seed
 {
     public class IdentitySeeder
     {
-
-        public static async Task seedAsync(IServiceProvider sevices)
+        public static async Task seedAsync(IServiceProvider services)
         {
-            var roleManager = sevices.GetRequiredService<RoleManager<IdentityRole>>();
-            var userManager = sevices.GetRequiredService<UserManager<IdentityUser>>();
-            var context = sevices.GetRequiredService<ApplicationDbContext>();
+            var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+            var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+            var context = services.GetRequiredService<ApplicationDbContext>();
 
-
-            // Roles se toman desde el enum Perfil
-            var roles = Enum.GetNames(typeof(Perfil));
-            foreach (var role in roles)
+            // Roles 
+            foreach (var role in Enum.GetNames(typeof(Perfil)))
             {
                 if (!await roleManager.RoleExistsAsync(role))
-                {
                     await roleManager.CreateAsync(new IdentityRole(role));
-                }
             }
 
-            // Usuario Administrador
-            var AdminUser = await userManager.FindByEmailAsync("admin@proyecto.com");
-            if (AdminUser == null)
+            // Administrador 
+            if (await userManager.FindByNameAsync("admin") == null)
             {
-                AdminUser = new IdentityUser
+                var admin = new ApplicationUser
                 {
                     UserName = "admin",
                     Email = "admin@proyecto.com",
-                    EmailConfirmed = true
+                    NombreCompleto = "Administrador Principal",
+                    Cedula = "123654897",
+                    EmailConfirmed = true,
+                    Perfil = Perfil.Administrador
                 };
-                await userManager.CreateAsync(AdminUser, "admin123");
-                await userManager.AddToRoleAsync(AdminUser, Perfil.Administrador.ToString());
+
+                await userManager.CreateAsync(admin, "Admin123!");
+                await userManager.AddToRoleAsync(admin, Perfil.Administrador.ToString());
             }
 
-
-            // Usuario Médico de prueba
-
-            var MedicoUser = await userManager.FindByEmailAsync("medico@proyecto.com");
-            if (MedicoUser == null)
+            // Médico tratante 
+            if (!context.Medicos.Any(m => m.CedulaFisica == "119410090") &&
+                await userManager.FindByNameAsync("mvfallas") == null)
             {
-                MedicoUser = new IdentityUser
+                var medico = new Medico
                 {
-                    UserName = "medico",
-                    Email = "medico@proyecto.com",
-                    EmailConfirmed = true
-                };
-                await userManager.CreateAsync(MedicoUser, "medico123");
-                await userManager.AddToRoleAsync(MedicoUser, Perfil.Medico.ToString());
-
-                // Crear el registro Medico vinculado al usuario
-                if (context.Medicos.Any(m => m.UsuarioCedula == MedicoUser.Id) == false)
+                    NombreCompleto = "María Victoria Fallas",
+                    CedulaFisica = "119410090",
+                    NumeroColegiado = "MED-015",
+                    FotoUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQDHL8Bcf3t0PW_T_k-dgU7JmMEmms2XbiEpq73BtGfYA&s=10",
+                    MedicosEspecialidades = new List<MedicoEspecialidad>
                 {
-                    var medico = new Medico
-                    {
-                        NombreCompleto = "Dr. Juan Pérez",
-                        NumeroColegiado = "MED-001",
-                        UsuarioCedula = MedicoUser.Id
-                    };
-                    context.Medicos.Add(medico);
-                    await context.SaveChangesAsync();
+                    new MedicoEspecialidad { EspecialidadId = 1 },
+                    new MedicoEspecialidad { EspecialidadId = 2 }
                 }
+                };
+
+                context.Medicos.Add(medico);
+                await context.SaveChangesAsync();
+
+                var usuarioMedico = new ApplicationUser
+                {
+                    UserName = "mvfallas",
+                    Email = "medico@medicalsystem.com",
+                    NombreCompleto = medico.NombreCompleto,
+                    Cedula = medico.CedulaFisica,
+                    EmailConfirmed = true,
+                    Perfil = Perfil.Medico,
+                    MedicoId = medico.Id
+                };
+
+                await userManager.CreateAsync(usuarioMedico, "Medico123!");
+                await userManager.AddToRoleAsync(usuarioMedico, Perfil.Medico.ToString());
             }
 
-            // Usuario Paciente de prueba
-            var pacienteUser = await userManager.FindByEmailAsync("paciente@proyecto.com");
-
-            if (pacienteUser == null)
+            // Paciente 
+            // Datos personales van en ApplicationUser; Paciente solo agrupa el expediente
+            if (await userManager.FindByNameAsync("jpaciente") == null)
             {
-                pacienteUser = new IdentityUser
+                var usuarioPaciente = new ApplicationUser
                 {
-                    UserName = "paciente",
+                    UserName = "jpaciente",
                     Email = "paciente@proyecto.com",
-                    EmailConfirmed = true
+                    NombreCompleto = "John Paciente",
+                    Cedula = "123456789",
+                    EmailConfirmed = true,
+                    Perfil = Perfil.Paciente
                 };
 
-                await userManager.CreateAsync(pacienteUser, "paciente123");
-                await userManager.AddToRoleAsync(pacienteUser, Perfil.Paciente.ToString());
+                await userManager.CreateAsync(usuarioPaciente, "Paciente123!");
+                await userManager.AddToRoleAsync(usuarioPaciente, Perfil.Paciente.ToString());
 
-                // Crear el registro Paciente vinculado al usuario
-                if (!context.Pacientes.Any(p => p.UsuarioId == pacienteUser.Id))
-                {
-                    context.Pacientes.Add(new Paciente
-                    {
-                        Cedula = "1-0000-0000",
-                        NombreCompleto = "María García López",
-                        Correo = "paciente@medicalsystem.com",
-                        UsuarioId = pacienteUser.Id
-                    });
-
-                    await context.SaveChangesAsync();
-                }
+                context.Pacientes.Add(new Paciente { UsuarioId = usuarioPaciente.Id });
+                await context.SaveChangesAsync();
             }
 
-            // Especialidades de ejemplo
+            // Especialidades 
             if (!context.Especialidades.Any())
             {
                 context.Especialidades.AddRange(
@@ -107,35 +102,32 @@ namespace ProyectoDesarrolloSoftware.Data.Seed
                     new Especialidad { Nombre = "Dermatología" },
                     new Especialidad { Nombre = "Neurología" }
                 );
-
                 await context.SaveChangesAsync();
             }
 
-            // Padecimientos de ejemplo
+            // Padecimientos 
             if (!context.Padecimientos.Any())
             {
                 context.Padecimientos.AddRange(
-                    new Padecimiento { Nombre = "Hipertensión", Descripcion = "Presión arterial elevada de forma crónica."},
-                    new Padecimiento { Nombre = "Diabetes Tipo 2", Descripcion = "Trastorno metabólico con niveles altos de glucosa."},
-                    new Padecimiento{ Nombre = "Asma", Descripcion = "Enfermedad inflamatoria crónica de las vías respiratorias."}
+                    new Padecimiento { Nombre = "Hipertensión", Descripcion = "Presión arterial elevada de forma crónica." },
+                    new Padecimiento { Nombre = "Diabetes Tipo 2", Descripcion = "Trastorno metabólico con niveles altos de glucosa." },
+                    new Padecimiento { Nombre = "Asma", Descripcion = "Enfermedad inflamatoria crónica de las vías respiratorias." }
                 );
-
                 await context.SaveChangesAsync();
             }
 
-            // Tratamientos de ejemplo
+            // Tratamientos 
             if (!context.Tratamientos.Any())
             {
                 context.Tratamientos.AddRange(
-                    new Tratamiento { Nombre = "Terapia Física", Descripcion = "Rehabilitación mediante ejercicios dirigidos."},
+                    new Tratamiento { Nombre = "Terapia Física", Descripcion = "Rehabilitación mediante ejercicios dirigidos." },
                     new Tratamiento { Nombre = "Dieta Balanceada", Descripcion = "Plan nutricional personalizado." },
-                    new Tratamiento{ Nombre = "Control de Glucosa", Descripcion = "Monitoreo diario de niveles de azúcar."}
+                    new Tratamiento { Nombre = "Control de Glucosa", Descripcion = "Monitoreo diario de niveles de azúcar." }
                 );
-
                 await context.SaveChangesAsync();
             }
 
-            // Medicamentos de ejemplo
+            // Medicamentos 
             if (!context.Medicamentos.Any())
             {
                 context.Medicamentos.AddRange(
@@ -144,7 +136,6 @@ namespace ProyectoDesarrolloSoftware.Data.Seed
                     new Medicamento { NombreMedicamento = "Atenolol" },
                     new Medicamento { NombreMedicamento = "Lovastatina" }
                 );
-
                 await context.SaveChangesAsync();
             }
         }

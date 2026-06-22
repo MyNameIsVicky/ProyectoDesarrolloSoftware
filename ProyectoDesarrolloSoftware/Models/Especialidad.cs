@@ -4,7 +4,6 @@ namespace ProyectoDesarrolloSoftware.Models
 {
     public class Especialidad
     {
-      
             [Key]
             public int Id { get; set; }
 

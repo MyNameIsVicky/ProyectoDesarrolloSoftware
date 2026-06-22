@@ -1,4 +1,4 @@
-﻿@model ProyectoDesarrolloSoftware.Models.ViewModel.MedicoVM
+﻿@model ProyectoDesarrolloSoftware.Models.ViewModels.MedicoViewModel
 
 @{
     ViewData["Title"] = "Registrar Médico";
@@ -21,50 +21,31 @@
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger border-0 small py-2 mb-4 rounded-2"></div>
 
                         <div class="row g-4">
-                            <div class="col-md-6 border-end">
-                                <h4 class="fs-5 text-secondary fw-bold mb-3">1. Credenciales de Acceso</h4>
+                           
+                            <div class="col-12">
+                                <h4 class="fs-5 text-muted fw-bold mb-3">Datos Profesionales</h4>
 
-                                <div class="form-group mb-3">
-                                    <label asp-for="Username" class="form-label small fw-bold">Nombre de Usuario</label>
-                                    <input asp-for="Username" class="form-control" placeholder="Ej: jpmendez" />
-                                    <span asp-validation-for="Username" class="text-danger small d-block mt-1"></span>
+                                <div class="row">
+                                    <div class="col-md-4 form-group mb-3">
+                                        <label asp-for="Medico.NombreCompleto" class="form-label small fw-bold">Nombre Completo</label>
+                                        <input asp-for="Medico.NombreCompleto" class="form-control" placeholder="Ej: Dr. Carlos Monge" />
+                                        <span asp-validation-for="Medico.NombreCompleto" class="text-danger small d-block mt-1"></span>
+                                    </div>
+
+                                    <div class="col-md-4 form-group mb-3">
+                                        <label asp-for="Medico.CedulaFisica" class="form-label small fw-bold">Cédula Física</label>
+                                        <input asp-for="Medico.CedulaFisica" class="form-control" placeholder="Ej: 1-1234-5678" />
+                                        <span asp-validation-for="Medico.CedulaFisica" class="text-danger small d-block mt-1"></span>
+                                    </div>
+
+                                    <div class="col-md-4 form-group mb-3">
+                                        <label asp-for="Medico.NumeroColegiado" class="form-label small fw-bold">Número de Colegiado</label>
+                                        <input asp-for="Medico.NumeroColegiado" class="form-control" placeholder="Ej: MED-001" />
+                                        <span asp-validation-for="Medico.NumeroColegiado" class="text-danger small d-block mt-1"></span>
+                                    </div>
                                 </div>
 
-                                <div class="form-group mb-3">
-                                    <label asp-for="Email" class="form-label small fw-bold">Correo Electrónico</label>
-                                    <input asp-for="Email" type="email" class="form-control" placeholder="medico@hospital.com" />
-                                    <span asp-validation-for="Email" class="text-danger small d-block mt-1"></span>
-                                </div>
-
-                                <div class="form-group mb-3">
-                                    <label asp-for="Password" class="form-label small fw-bold">Contraseña Temporal</label>
-                                    <input asp-for="Password" type="password" class="form-control" placeholder="Mínimo 6 caracteres" />
-                                    <span asp-validation-for="Password" class="text-danger small d-block mt-1"></span>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6">
-                                <h4 class="fs-5 text-secondary fw-bold mb-3">2. Datos Profesionales</h4>
-
-                                <div class="form-group mb-3">
-                                    <label asp-for="Medico.NombreCompleto" class="form-label small fw-bold">Nombre Completo</label>
-                                    <input asp-for="Medico.NombreCompleto" class="form-control" placeholder="Ej: Dr. Carlos Monge" />
-                                    <span asp-validation-for="Medico.NombreCompleto" class="text-danger small d-block mt-1"></span>
-                                </div>
-
-                                <div class="form-group mb-3">
-                                    <label asp-for="Medico.CedulaFisica" class="form-label small fw-bold">Cédula de Identidad</label>
-                                    <input asp-for="Medico.CedulaFisica" class="form-control" placeholder="Ej: 1-1111-1111" />
-                                    <span asp-validation-for="Medico.CedulaFisica" class="text-danger small d-block mt-1"></span>
-                                </div>
-
-                                <div class="form-group mb-3">
-                                    <label asp-for="Medico.NumeroColegiado" class="form-label small fw-bold">Número de Colegiado</label>
-                                    <input asp-for="Medico.NumeroColegiado" class="form-control" placeholder="Ej: MED-001" />
-                                    <span asp-validation-for="Medico.NumeroColegiado" class="text-danger small d-block mt-1"></span>
-                                </div>
-
-                                <div class="form-group mb-3">
+                                <div class="form-group mb-3 mt-2">
                                     <label asp-for="Medico.FotoUrl" class="form-label small fw-bold">URL de Fotografía (Opcional)</label>
                                     <input asp-for="Medico.FotoUrl" class="form-control" placeholder="https://ejemplo.com/foto.jpg" />
                                 </div>
@@ -74,8 +55,7 @@
                         <hr class="my-4 text-muted" />
 
                         <div class="form-group mb-4 bg-light p-3 rounded-3 border">
-                            <label class="form-label fw-bold text-secondary mb-1">3. Especialidades Médicas</label>
-                            <p class="text-muted small mb-2">Mantenga presionado Ctrl (o Cmd en Mac) para seleccionar múltiples opciones:</p>
+                            <label class="form-label fw-bold text-faded mb-1">Especialidades Médicas</label>
 
                             <select asp-for="EspecialidadesIds" asp-items="@ViewBag.Especialidades" class="form-select" multiple="multiple" style="height: 115px;"></select>
                             <span asp-validation-for="EspecialidadesIds" class="text-danger small d-block mt-1"></span>
