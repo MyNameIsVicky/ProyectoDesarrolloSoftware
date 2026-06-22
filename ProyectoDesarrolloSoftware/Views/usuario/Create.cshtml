@@ -3,7 +3,6 @@
 @{
     ViewData["Title"] = "Nuevo Usuario";
 }
-
 <div class="container my-5" style="padding-bottom: 60px;">
     <div class="row justify-content-center">
         <div class="col-lg-8">
@@ -23,15 +22,21 @@
                         <div class="row g-4">
 
                             <div class="col-md-6 border-end">
-                                <h4 class="fs-5 text-secondary fw-bold mb-3">1. Datos Personales</h4>
+                                <h4 class="fs-5 text-faded fw-bold mb-3">1. Datos Personales</h4>
 
                                 <div class="form-group mb-3">
+                                    <label asp-for="UserName" class="form-label small fw-bold">Nombre de Usuario</label>
+                                    <input asp-for="UserName" class="form-control" placeholder="Ej: mvfallas" />
+                                    <span asp-validation-for="UserName" class="text-danger small d-block mt-1"></span>
+                                </div>
+
+                              <div class="form-group mb-3" id="nombreCompletoDiv">
                                     <label asp-for="NombreCompleto" class="form-label small fw-bold">Nombre Completo</label>
-                                    <input asp-for="NombreCompleto" class="form-control" placeholder="Ej: María González" />
+                                    <input asp-for="NombreCompleto" class="form-control" placeholder="Ej: Victoria Fallas" />
                                     <span asp-validation-for="NombreCompleto" class="text-danger small d-block mt-1"></span>
                                 </div>
 
-                                <div class="form-group mb-3">
+                                <div class="form-group mb-3" id="cedulaDiv">
                                     <label asp-for="Cedula" class="form-label small fw-bold">Cédula</label>
                                     <input asp-for="Cedula" class="form-control" placeholder="Ej: 1-1111-1111" />
                                     <span asp-validation-for="Cedula" class="text-danger small d-block mt-1"></span>
@@ -45,7 +50,7 @@
                             </div>
 
                             <div class="col-md-6">
-                                <h4 class="fs-5 text-secondary fw-bold mb-3">2. Acceso y Perfil</h4>
+                                <h4 class="fs-5 text-faded fw-bold mb-3">2. Acceso y Perfil</h4>
 
                                 <div class="form-group mb-3">
                                     <label asp-for="Password" class="form-label small fw-bold">Contraseña</label>
@@ -56,14 +61,12 @@
                                 <div class="form-group mb-3">
                                     <label asp-for="Perfil" class="form-label small fw-bold">Perfil</label>
                                     <select asp-for="Perfil" class="form-select" id="perfilSelect">
-
                                         <option value="Paciente">Paciente</option>
                                         <option value="Medico">Médico</option>
-                                        <option value="Admin">Administrador</option>
+                                        <option value="Administrador">Administrador</option>
                                     </select>
                                 </div>
 
-                                @* Solo visible cuando el perfil es "Medico" *@
                                 <div class="form-group mb-3" id="medicoDiv" style="display:none;">
                                     <label asp-for="MedicoId" class="form-label small fw-bold">Médico Tratante Vinculado</label>
                                     <select asp-for="MedicoId" asp-items="Model.MedicosList" class="form-select">
@@ -93,8 +96,20 @@
     <script>
         const perfilSelect = document.getElementById('perfilSelect');
         const medicoDiv = document.getElementById('medicoDiv');
-        perfilSelect.addEventListener('change', () => {
-            medicoDiv.style.display = perfilSelect.value === 'Medico' ? 'block' : 'none';
-        });
+        const cedulaDiv = document.getElementById('cedulaDiv');
+        const nombreCompletoDiv = document.getElementById('nombreCompletoDiv');
+
+        function toggleCampos() {
+            const esMedico = perfilSelect.value === 'Medico';
+
+            // Médico: mostrar selector de médico tratante, ocultar nombre completo y cédula
+            // porque esos datos ya están en la entidad Medico
+            medicoDiv.style.display       = esMedico ? 'block' : 'none';
+            nombreCompletoDiv.style.display = esMedico ? 'none' : 'block';
+            cedulaDiv.style.display       = esMedico ? 'none' : 'block';
+        }
+
+        perfilSelect.addEventListener('change', toggleCampos);
+        document.addEventListener('DOMContentLoaded', toggleCampos);
     </script>
 }

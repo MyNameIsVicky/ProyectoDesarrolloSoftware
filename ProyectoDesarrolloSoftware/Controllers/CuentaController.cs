@@ -1,14 +1,15 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using ProyectoDesarrolloSoftware.Models;
 
 namespace ProyectoDesarrolloSoftware.Controllers
 {
     public class CuentaController : Controller
     {
-        private readonly SignInManager<IdentityUser> _signInManager;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public CuentaController(SignInManager<IdentityUser> signInManager, UserManager<IdentityUser> userManager)
+        public CuentaController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager)
         {
             _signInManager = signInManager;
             _userManager = userManager;
@@ -29,26 +30,34 @@ namespace ProyectoDesarrolloSoftware.Controllers
         // POST: /Cuenta/Login
         [HttpPost]
         public async Task<IActionResult> Login(string username, string password)
-        {
-            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+         {
+           if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
             {
                 ViewBag.Error = "Por favor, complete todos los campos.";
                 return View();
             }
 
+          // Verificar si el usuario existe y está bloqueado antes de intentar el login
+            var user = await _userManager.FindByNameAsync(username);
+            if (user != null && await _userManager.IsLockedOutAsync(user))
+              {
+                  ViewBag.Error = "Su cuenta está bloqueada. Contacte a un administrador.";
+                 return View();
+             }
             // Intenta iniciar sesion con el usuario y contraseña
             // IsPersistent: false para que no recuerde la sesión después de cerrar el navegador (cookies)
             // lockoutOnFailure: false para que no bloquee la cuenta si se falla varias veces
             var resultado = await _signInManager.PasswordSignInAsync(username, password, isPersistent: false, lockoutOnFailure: false);
 
-            if (resultado.Succeeded)
-            {
-                return RedirectSegunRol();
+             if (resultado.Succeeded)
+               {
+                 return RedirectSegunRol();
+              }
+
+               ViewBag.Error = "Usuario o contraseña incorrectos.";
+               return View();
             }
 
-            ViewBag.Error = "Usuario o contraseña incorrectos.";
-            return View();
-        }
 
         // POST: /Cuenta/Logout
         [HttpPost]

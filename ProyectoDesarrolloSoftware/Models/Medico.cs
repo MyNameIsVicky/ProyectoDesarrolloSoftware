@@ -23,12 +23,7 @@ namespace ProyectoDesarrolloSoftware.Models
         [StringLength(50)]
         public string CedulaFisica { get; set; } 
 
-        [Required]
-        public string UsuarioCedula { get; set; } // ID automatico para Identity
-
-
-        // public virtual Usuario Usuario { get; set; }
-
-        public virtual IList<MedicoEspecialidad> MedicosEspecialidades { get; set; } = new List<MedicoEspecialidad>();
+                public virtual IList<MedicoEspecialidad> MedicosEspecialidades { get; set; } = new List<MedicoEspecialidad>();
     }
 }
+

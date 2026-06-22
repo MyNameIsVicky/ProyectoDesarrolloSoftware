@@ -22,7 +22,8 @@
             <table id="usuariosTable" class="table table-hover align-middle">
                 <thead class="table-light">
                     <tr>
-                        <th>Nombre</th>
+                        <th>Usuario</th>
+                        <th>Nombre Completo</th>
                         <th>Correo</th>
                         <th>Cédula</th>
                         <th>Perfil</th>
@@ -34,12 +35,14 @@
                     @foreach (var u in Model)
                     {
                         <tr class="@(u.Bloqueado ? "table-danger" : "")">
-                            <td><strong>@u.NombreCompleto</strong></td>
+                            <td><strong>@u.UserName</strong></td>
+                            <td>@u.NombreCompleto</td>
                             <td>@u.Correo</td>
                             <td>@u.Cedula</td>
                             <td><span class="badge bg-light text-dark border">@u.Perfil</span></td>
                             <td>
-                                @if (u.Bloqueado){
+                                @if (u.Bloqueado)
+                                {
                                     <span class="badge bg-danger">Bloqueado</span>
                                 }
                                 else

@@ -7,7 +7,7 @@ using ProyectoDesarrolloSoftware.Models.Expedientes;
 
 namespace ProyectoDesarrolloSoftware.Data
 {
-    public class ApplicationDbContext : IdentityDbContext<IdentityUser>
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
@@ -43,4 +43,6 @@ namespace ProyectoDesarrolloSoftware.Data
 
 
         }
+
+     
 }
