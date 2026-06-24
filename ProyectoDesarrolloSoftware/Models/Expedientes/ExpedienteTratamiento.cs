@@ -17,8 +17,8 @@ namespace ProyectoDesarrolloSoftware.Models.Expedientes
         public Medico Medico { get; set; } = null!;
 
         public DateTime FechaAsignacion { get; set; }
-        public bool Suspendido { get; set; } = false;  // Indica si el padecimiento está activo o ha sido dado de alta
-        public DateTime? FechaSuspension { get; set; } // Fecha en la que se dio de alta el padecimiento, si es que se dio de alta
+        public bool Suspendido { get; set; } = false;  // false = activo, true = dado de alta
+        public DateTime? FechaSuspension { get; set; } // Fecha en la que se dio de alta
 
     }
 }

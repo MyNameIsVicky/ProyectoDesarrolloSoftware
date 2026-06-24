@@ -1,0 +1,33 @@
+﻿@{
+    ViewData["Title"] = "Acceso Denegado";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm rounded-3 text-center p-5">
+
+                <div class="mb-4">
+                    <svg width="90" height="90" viewBox="0 0 24 24" fill="none" class="text-danger mx-auto" style="color:#dc3545;">
+                        <path d="M12 2L4 5v6c0 5 3.5 8.5 8 10 4.5-1.5 8-5 8-10V5l-8-3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" fill="none" />
+                        <path d="M9.5 9.5l5 5M14.5 9.5l-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                    </svg>
+                </div>
+
+                <h2 class="fw-bold text-danger display-6 mb-2">Acceso Denegado</h2>
+                <p class="text-muted lead mb-1">Centro Médico Carlos Monge Alfaro</p>
+                <hr class="w-25 mx-auto text-danger" />
+
+                <p class="text-muted mt-3 mb-4">
+                    No tienes permisos para acceder a esta seccion del sistema.
+                </p>
+
+                <div class="d-flex flex-column flex-md-row justify-content-center gap-2">
+                    <a href="/" class="btn btn-outline-primary px-4 py-2 fw-bold rounded-2">Ir al Inicio</a>
+                    <a href="javascript:history.back()" class="btn btn-outline-secondary px-4 py-2 fw-bold rounded-2">Volver Atrás</a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

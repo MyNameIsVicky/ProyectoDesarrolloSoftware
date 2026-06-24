@@ -39,10 +39,12 @@ namespace ProyectoDesarrolloSoftware.Data
 
         public DbSet<ExpedienteMedicamento> ExpedienteMedicamentos { get; set; }
 
-        public DbSet<HistorialClinico> HistorialClinicos{ get; set; }
+        public DbSet<HistorialClinico> HistorialClinicos { get; set; }
+
+        public DbSet<ExamenMedico> Examenes { get; set; }
 
 
-        }
+    }
 
-     
+
 }

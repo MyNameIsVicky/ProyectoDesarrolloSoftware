@@ -9,7 +9,7 @@ using ProyectoDesarrolloSoftware.Models.ViewModels;
 
 namespace ProyectoDesarrolloSoftware.Controllers
 {
-    [Authorize(Roles = "Administrador")]
+    [Authorize(Roles = "Administrador, Medico")]
     public class MedicoController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -21,6 +21,7 @@ namespace ProyectoDesarrolloSoftware.Controllers
             _userManager = userManager;
         }
 
+        // GET: Medico
         public async Task<IActionResult> Index()
         {
             var medicos = await _context.Medicos
@@ -30,13 +31,21 @@ namespace ProyectoDesarrolloSoftware.Controllers
 
             return View(medicos);
         }
+        // GET: Medico/VistaMedicos
+        [Authorize(Roles = "Medico")]
+        public IActionResult VistaMedicos()
+        {
+            return View();
+        }
 
+        // GET: Medico/Create
         public async Task<IActionResult> Create()
         {
             await CargarEspecialidades();
             return View(new MedicoViewModel());
         }
 
+        // POST: Medico/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(MedicoViewModel medicoVM)
@@ -70,6 +79,7 @@ namespace ProyectoDesarrolloSoftware.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        // GET: Medico/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
             var medico = await _context.Medicos
@@ -88,6 +98,7 @@ namespace ProyectoDesarrolloSoftware.Controllers
             return View(vm);
         }
 
+        // POST: Medico/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(MedicoViewModel medicoVM)
@@ -129,6 +140,7 @@ namespace ProyectoDesarrolloSoftware.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        // GET: Medico/Delete/5
         public async Task<IActionResult> Delete(int id)
         {
             var medico = await _context.Medicos
@@ -141,6 +153,7 @@ namespace ProyectoDesarrolloSoftware.Controllers
             return View(medico);
         }
 
+        // POST: Medico/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)

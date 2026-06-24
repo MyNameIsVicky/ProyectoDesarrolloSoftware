@@ -1,0 +1,100 @@
+﻿@model IEnumerable<ProyectoDesarrolloSoftware.Models.ViewModels.PacienteListItemViewModel>
+@{
+    ViewData["Title"] = "Gestión de Pacientes";
+}
+
+<div class="container mt-5">
+    <div class="text-center mb-5">
+        <h2 class="display-4">Pacientes Registrados</h2>
+        <p class="text-muted lead">Centro Médico Carlos Monge Alfaro</p>
+        <hr class="w-25 mx-auto" />
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <a asp-action="Create" asp-controller="Paciente" class="btn btn-outline-light px-4 shadow-sm">
+            + Registrar Nuevo Paciente
+        </a>
+    </div>
+
+    <div class="card shadow-sm border-0 p-4 mb-5">
+        <div class="table-responsive">
+            <table id="pacientesTable" class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width: 8%;">ID</th>
+                        <th>Nombre Paciente</th>
+                        <th>Cédula</th>
+                        <th>Última Atención</th>
+                        <th style="width: 20%;" class="text-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var paciente in Model)
+                    {
+                        <tr>
+                            <td><strong>@paciente.Id</strong></td>
+                            <td class="fw-bold">@paciente.NombreCompleto</td>
+                            <td>@paciente.Cedula</td>
+                            <td>
+                                @if (paciente.UltimaAtencion.HasValue)
+                                {
+                                    <span class="badge bg-light text-dark border">
+                                        @paciente.UltimaAtencion.Value.ToString("dd/MM/yyyy HH:mm")
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small">Sin atenciones</span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                <div class="d-flex gap-2 justify-content-end">
+                                    <a asp-action="Ver" asp-controller="Expediente" asp-route-pacienteId="@paciente.Id"
+                                       class="btn btn-outline-success btn-sm px-3">
+                                        Expediente
+                                    </a>
+                                    <a asp-action="Edit" asp-controller="Paciente" asp-route-id="@paciente.Id"
+                                       class="btn btn-outline-primary btn-sm px-3">
+                                        Editar
+                                    </a>
+                                    <a asp-action="Delete" asp-controller="Paciente" asp-route-id="@paciente.Id"
+                                       class="btn btn-outline-danger btn-sm px-3">
+                                        Eliminar
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="text-center mb-5">
+        <a class="btn btn-outline-light px-4 shadow-sm" href="/Medico/VistaMedicos" role="button">
+            Volver al Panel de Medico
+        </a>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            $('#pacientesTable').DataTable({
+                language: {
+                    url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+                },
+                order: [] // El ordenamiento por última atención ya viene del servidor
+            });
+        });
+    </script>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <script>
+            toastr.success('@(TempData["SuccessMessage"])');
+        </script>
+    }
+
+
+}

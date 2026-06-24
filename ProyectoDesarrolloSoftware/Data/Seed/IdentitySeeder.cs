@@ -36,6 +36,19 @@ namespace ProyectoDesarrolloSoftware.Data.Seed
                 await userManager.AddToRoleAsync(admin, Perfil.Administrador.ToString());
             }
 
+            // Especialidades 
+            if (!context.Especialidades.Any())
+            {
+                context.Especialidades.AddRange(
+                    new Especialidad { Nombre = "Medicina General" },
+                    new Especialidad { Nombre = "Cardiología" },
+                    new Especialidad { Nombre = "Pediatría" },
+                    new Especialidad { Nombre = "Dermatología" },
+                    new Especialidad { Nombre = "Neurología" }
+                );
+                await context.SaveChangesAsync();
+            }
+
             // Médico tratante 
             if (!context.Medicos.Any(m => m.CedulaFisica == "119410090") &&
                 await userManager.FindByNameAsync("mvfallas") == null)
@@ -47,10 +60,10 @@ namespace ProyectoDesarrolloSoftware.Data.Seed
                     NumeroColegiado = "MED-015",
                     FotoUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQDHL8Bcf3t0PW_T_k-dgU7JmMEmms2XbiEpq73BtGfYA&s=10",
                     MedicosEspecialidades = new List<MedicoEspecialidad>
-                {
-                    new MedicoEspecialidad { EspecialidadId = 1 },
-                    new MedicoEspecialidad { EspecialidadId = 2 }
-                }
+                    {
+                        new MedicoEspecialidad { EspecialidadId = 1 },
+                        new MedicoEspecialidad { EspecialidadId = 2 }
+                    }
                 };
 
                 context.Medicos.Add(medico);
@@ -89,19 +102,6 @@ namespace ProyectoDesarrolloSoftware.Data.Seed
                 await userManager.AddToRoleAsync(usuarioPaciente, Perfil.Paciente.ToString());
 
                 context.Pacientes.Add(new Paciente { UsuarioId = usuarioPaciente.Id });
-                await context.SaveChangesAsync();
-            }
-
-            // Especialidades 
-            if (!context.Especialidades.Any())
-            {
-                context.Especialidades.AddRange(
-                    new Especialidad { Nombre = "Medicina General" },
-                    new Especialidad { Nombre = "Cardiología" },
-                    new Especialidad { Nombre = "Pediatría" },
-                    new Especialidad { Nombre = "Dermatología" },
-                    new Especialidad { Nombre = "Neurología" }
-                );
                 await context.SaveChangesAsync();
             }
 

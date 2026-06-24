@@ -24,11 +24,7 @@
                             <div class="col-md-6 border-end">
                                 <h4 class="fs-5 text-faded fw-bold mb-3">1. Datos Personales</h4>
 
-                                <div class="form-group mb-3">
-                                    <label asp-for="UserName" class="form-label small fw-bold">Nombre de Usuario</label>
-                                    <input asp-for="UserName" class="form-control" placeholder="Ej: mvfallas" />
-                                    <span asp-validation-for="UserName" class="text-danger small d-block mt-1"></span>
-                                </div>
+                                
 
                               <div class="form-group mb-3" id="nombreCompletoDiv">
                                     <label asp-for="NombreCompleto" class="form-label small fw-bold">Nombre Completo</label>
@@ -42,15 +38,23 @@
                                     <span asp-validation-for="Cedula" class="text-danger small d-block mt-1"></span>
                                 </div>
 
+                                
+                            </div>
+
+                            <div class="col-md-6">
+                                <h4 class="fs-5 text-faded fw-bold mb-3">2. Acceso y Perfil</h4>
+
+                                <div class="form-group mb-3">
+                                    <label asp-for="UserName" class="form-label small fw-bold">Nombre de Usuario</label>
+                                    <input asp-for="UserName" class="form-control" placeholder="Ej: mvfallas" />
+                                    <span asp-validation-for="UserName" class="text-danger small d-block mt-1"></span>
+                                </div>
+
                                 <div class="form-group mb-3">
                                     <label asp-for="Correo" class="form-label small fw-bold">Correo Electrónico</label>
                                     <input asp-for="Correo" type="email" class="form-control" placeholder="usuario@hospital.com" />
                                     <span asp-validation-for="Correo" class="text-danger small d-block mt-1"></span>
                                 </div>
-                            </div>
-
-                            <div class="col-md-6">
-                                <h4 class="fs-5 text-faded fw-bold mb-3">2. Acceso y Perfil</h4>
 
                                 <div class="form-group mb-3">
                                     <label asp-for="Password" class="form-label small fw-bold">Contraseña</label>
