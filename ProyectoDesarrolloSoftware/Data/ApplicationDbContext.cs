@@ -41,6 +41,7 @@ namespace ProyectoDesarrolloSoftware.Data
 
         public DbSet<HistorialClinico> HistorialClinicos{ get; set; }
 
+        public DbSet<ExamenLaboratorio> ExamenesLaboratorio { get; set; }
 
-        }
+    }
 }
