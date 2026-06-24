@@ -1,0 +1,78 @@
+﻿@model ProyectoDesarrolloSoftware.Models.ViewModels.PacienteViewModel
+@{
+    ViewData["Title"] = "Registrar Paciente";
+}
+
+<div class="container my-5" style="padding-bottom: 60px;">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            <div class="text-center mb-4">
+                <h2 class="text-primary fw-bold display-5">Registrar Paciente</h2>
+                <p class="text-muted lead">Centro Médico Carlos Monge Alfaro</p>
+                <hr class="w-25 mx-auto text-primary" />
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-body p-4 p-md-5">
+                    <form asp-action="Create" method="post">
+
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger border-0 small py-2 mb-4 rounded-2"></div>
+
+                        <div class="row g-4">
+                            <div class="col-md-6 border-end">
+                                <h4 class="fs-5 text-muted fw-bold mb-3">1. Datos Personales</h4>
+
+                                <div class="form-group mb-3">
+                                    <label asp-for="NombreCompleto" class="form-label small fw-bold">Nombre Completo</label>
+                                    <input asp-for="NombreCompleto" class="form-control" placeholder="Ej: Juan Pérez Rodríguez" />
+                                    <span asp-validation-for="NombreCompleto" class="text-danger small d-block mt-1"></span>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label asp-for="Cedula" class="form-label small fw-bold">Cédula de Identidad</label>
+                                    <input asp-for="Cedula" class="form-control" placeholder="Ej: 1-1234-5678" />
+                                    <span asp-validation-for="Cedula" class="text-danger small d-block mt-1"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <h4 class="fs-5 text-muted fw-bold mb-3">2. Credenciales de Acceso</h4>
+
+                                <div class="form-group mb-3">
+                                    <label asp-for="UserName" class="form-label small fw-bold">Nombre de Usuario</label>
+                                    <input asp-for="UserName" class="form-control" placeholder="Ej: jlopez" />
+                                    <span asp-validation-for="UserName" class="text-danger small d-block mt-1"></span>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label asp-for="Email" class="form-label small fw-bold">Correo Electrónico</label>
+                                    <input asp-for="Email" class="form-control" placeholder="Ej: paciente@correo.com" />
+                                    <span asp-validation-for="Email" class="text-danger small d-block mt-1"></span>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label asp-for="Password" class="form-label small fw-bold">Contraseña</label>
+                                    <input asp-for="Password" type="password" class="form-control" placeholder="Mínimo 6 caracteres" />
+                                    <span asp-validation-for="Password" class="text-danger small d-block mt-1"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4 text-muted" />
+
+                        <div class="d-flex flex-column flex-md-row gap-2 mt-4">
+                            <button type="submit" class="btn btn-outline-primary py-2 fw-bold flex-fill rounded-2">Registrar Paciente</button>
+                            <a asp-action="Index" class="btn btn-outline-secondary py-2 fw-bold flex-fill rounded-2">Cancelar</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

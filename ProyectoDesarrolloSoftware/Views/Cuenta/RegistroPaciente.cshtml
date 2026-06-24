@@ -1,0 +1,89 @@
+﻿@model ProyectoDesarrolloSoftware.Models.ViewModels.RegistroPacienteViewModel
+@{
+    ViewData["Title"] = "Crear Cuenta";
+}
+
+<div class="container my-5" style="padding-bottom: 60px;">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            <div class="text-center mb-4">
+                <h2 class="text-primary fw-bold display-5">Centro Médico</h2>
+                <p class="text-muted lead">Carlos Monge Alfaro</p>
+                <hr class="w-25 mx-auto text-primary" />
+                <h3 class="fs-4 fw-bold mt-3">Crear cuenta de paciente</h3>
+                <p class="text-muted small">Complete sus datos para registrarse en el sistema.</p>
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-body p-4 p-md-5">
+                    <form asp-action="Registrar" asp-controller="Cuenta" method="post">
+
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger border-0 small py-2 mb-4 rounded-2"></div>
+
+                        <div class="row g-4">
+                            <div class="col-md-6 border-end">
+                                <h4 class="fs-5 text-muted fw-bold mb-3">1. Datos Personales</h4>
+
+                                <div class="form-group mb-3">
+                                    <label asp-for="NombreCompleto" class="form-label small fw-bold">Nombre Completo</label>
+                                    <input asp-for="NombreCompleto" class="form-control" placeholder="Ej: Juan Pérez Rodríguez" />
+                                    <span asp-validation-for="NombreCompleto" class="text-danger small d-block mt-1"></span>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label asp-for="Cedula" class="form-label small fw-bold">Cédula de Identidad</label>
+                                    <input asp-for="Cedula" class="form-control" placeholder="Ej: 1-1234-5678" />
+                                    <span asp-validation-for="Cedula" class="text-danger small d-block mt-1"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <h4 class="fs-5 text-muted fw-bold mb-3">2. Credenciales de Acceso</h4>
+
+                                <div class="form-group mb-3">
+                                    <label asp-for="UserName" class="form-label small fw-bold">Nombre de Usuario</label>
+                                    <input asp-for="UserName" class="form-control" placeholder="Ej: jlopez" autofocus />
+                                    <span asp-validation-for="UserName" class="text-danger small d-block mt-1"></span>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label asp-for="Email" class="form-label small fw-bold">Correo Electrónico</label>
+                                    <input asp-for="Email" class="form-control" placeholder="correo@ejemplo.com" />
+                                    <span asp-validation-for="Email" class="text-danger small d-block mt-1"></span>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label asp-for="Password" class="form-label small fw-bold">Contraseña</label>
+                                    <input asp-for="Password" type="password" class="form-control" placeholder="Mínimo 6 caracteres" />
+                                    <span asp-validation-for="Password" class="text-danger small d-block mt-1"></span>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label asp-for="ConfirmPassword" class="form-label small fw-bold">Confirmar Contraseña</label>
+                                    <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="Repita su contraseña" />
+                                    <span asp-validation-for="ConfirmPassword" class="text-danger small d-block mt-1"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4 text-muted" />
+
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-primary py-2 fw-bold rounded-2">Registrarme</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <p class="text-center text-muted small mt-3">
+                ¿Ya tiene cuenta? <a asp-action="Login" asp-controller="Cuenta">Iniciar sesión</a>
+            </p>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

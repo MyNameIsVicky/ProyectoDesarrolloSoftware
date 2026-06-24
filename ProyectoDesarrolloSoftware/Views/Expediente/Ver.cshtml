@@ -1,0 +1,542 @@
+﻿@model ProyectoDesarrolloSoftware.Models.ViewModels.ExpedienteViewModel
+@{
+    ViewData["Title"] = "Expediente del Paciente";
+}
+
+<div class="container mt-4 mb-5">
+
+    
+    <div class="card border-0 shadow-sm rounded-3 mb-4">
+        <div class="card-body px-4 py-3 d-flex align-items-center justify-content-between flex-wrap gap-3">
+            <div>
+                <h3 class="fw-bold mb-0">@Model.NombrePaciente</h3>
+                <span class="text-muted small">Cédula: @Model.CedulaPaciente</span>
+                &nbsp;
+                <span class="badge bg-light text-dark border">ID Paciente: @Model.Paciente.Id</span>
+            </div>
+            <a asp-action="Index" asp-controller="Paciente" class="btn btn-outline-secondary btn-sm px-3">
+                ← Volver al listado
+            </a>
+        </div>
+    </div>
+
+    
+    <ul class="nav nav-tabs mb-0" id="expedienteTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active fw-bold" id="tab-padecimientos" data-bs-toggle="tab"
+                    data-bs-target="#padecimientos" type="button" role="tab">
+                Padecimientos
+                <span class="badge bg-secondary ms-1">@Model.Padecimientos.Count</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link fw-bold" id="tab-tratamientos" data-bs-toggle="tab"
+                    data-bs-target="#tratamientos" type="button" role="tab">
+                Tratamientos
+                <span class="badge bg-secondary ms-1">@Model.Tratamientos.Count</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link fw-bold" id="tab-medicamentos" data-bs-toggle="tab"
+                    data-bs-target="#medicamentos" type="button" role="tab">
+                Medicamentos
+                <span class="badge bg-secondary ms-1">@Model.Medicamentos.Count</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link fw-bold" id="tab-examenes" data-bs-toggle="tab"
+                    data-bs-target="#examenes" type="button" role="tab">
+                Exámenes
+                <span class="badge bg-secondary ms-1">@Model.Examenes.Count</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link fw-bold" id="tab-historial" data-bs-toggle="tab"
+                    data-bs-target="#historial" type="button" role="tab">
+                Historial Clínico
+                <span class="badge bg-secondary ms-1">@Model.HistorialClinico.Count</span>
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content border border-top-0 rounded-bottom shadow-sm bg-white p-4" id="expedienteTabsContent">
+
+        @*Padecimientos*@
+
+        <div class="tab-pane fade show active" id="padecimientos" role="tabpanel">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0">Padecimientos</h5>
+                <button class="btn btn-outline-primary btn-sm px-3" data-bs-toggle="collapse"
+                        data-bs-target="#formPadecimiento">
+                    + Agregar
+                </button>
+            </div>
+
+
+            <div class="collapse mb-3" id="formPadecimiento">
+                <div class="card border-0 bg-light rounded-3 p-3">
+                    <form asp-action="AgregarPadecimiento" asp-controller="Expediente" method="post">
+                        <input type="hidden" name="PacienteId" value="@Model.Paciente.Id" />
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger small py-2 border-0"></div>
+                        <div class="row g-2 align-items-end">
+                            <div class="col-md-8 form-group">
+                                <label class="form-label small fw-bold">Seleccionar Padecimiento</label>
+                                <select name="PadecimientoId" asp-items="@Model.PadecimientosCatalogo"
+                                        class="form-select">
+                                    <option value="">-- Seleccione --</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <button type="submit" class="btn btn-primary w-100">Asignar</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            
+            @if (!Model.Padecimientos.Any())
+            {
+                <p class="text-muted small fst-italic">No hay padecimientos registrados para este paciente.</p>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle table-sm">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Padecimiento</th>
+                                <th>Médico que asignó</th>
+                                <th>Fecha Asignación</th>
+                                <th>Estado</th>
+                                <th>Fecha Suspensión</th>
+                                <th class="text-end">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var p in Model.Padecimientos)
+                            {
+                                <tr class="@(p.Suspendido ? "table-secondary text-muted" : "")">
+                                    <td class="fw-bold">@p.Padecimiento?.Nombre</td>
+                                    <td>@p.Medico?.NombreCompleto</td>
+                                    <td>@p.FechaAsignacion.ToString("dd/MM/yyyy")</td>
+                                    <td>
+                                        @if (p.Suspendido)
+                                        {
+                                            <span class="badge bg-secondary">Suspendido</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success">Activo</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @(p.FechaSuspension.HasValue
+                                            ? p.FechaSuspension.Value.ToString("dd/MM/yyyy")
+                                            : "—")
+                                    </td>
+                                    <td class="text-end">
+                                        @if (!p.Suspendido)
+                                        {
+                                            <form asp-action="SuspenderPadecimiento" asp-controller="Expediente" method="post" class="d-inline form-suspender">
+                                                <input type="hidden" name="id" value="@p.Id" />
+                                                <input type="hidden" name="pacienteId" value="@Model.Paciente.Id" />
+
+                                                <button type="button" class="btn btn-outline-warning btn-sm px-3"
+                                                        onclick="confirmarSuspension(this, '¿Deseas suspender este padecimiento?')">
+                                                    Suspender
+                                                </button>
+                                            </form>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+
+        @*Tratamientos*@
+
+        <div class="tab-pane fade" id="tratamientos" role="tabpanel">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0">Tratamientos</h5>
+                <button class="btn btn-outline-primary btn-sm px-3" data-bs-toggle="collapse"
+                        data-bs-target="#formTratamiento">
+                    + Agregar
+                </button>
+            </div>
+
+            <div class="collapse mb-3" id="formTratamiento">
+                <div class="card border-0 bg-light rounded-3 p-3">
+                    <form asp-action="AgregarTratamiento" asp-controller="Expediente" method="post">
+                        <input type="hidden" name="PacienteId" value="@Model.Paciente.Id" />
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger small py-2 border-0"></div>
+                        <div class="row g-2 align-items-end">
+                            <div class="col-md-8 form-group">
+                                <label class="form-label small fw-bold">Seleccionar Tratamiento</label>
+                                <select name="TratamientoId" asp-items="@Model.TratamientosCatalogo"
+                                        class="form-select">
+                                    <option value="">-- Seleccione --</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <button type="submit" class="btn btn-primary w-100">Asignar</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            @if (!Model.Tratamientos.Any())
+            {
+                <p class="text-muted small fst-italic">No hay tratamientos registrados para este paciente.</p>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle table-sm">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Tratamiento</th>
+                                <th>Médico que asignó</th>
+                                <th>Fecha Asignación</th>
+                                <th>Estado</th>
+                                <th>Fecha Suspensión</th>
+                                <th class="text-end">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var t in Model.Tratamientos)
+                            {
+                                <tr class="@(t.Suspendido ? "table-secondary text-muted" : "")">
+                                    <td class="fw-bold">@t.Tratamiento?.Nombre</td>
+                                    <td>@t.Medico?.NombreCompleto</td>
+                                    <td>@t.FechaAsignacion.ToString("dd/MM/yyyy")</td>
+                                    <td>
+                                        @if (t.Suspendido)
+                                        {
+                                            <span class="badge bg-secondary">Suspendido</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success">Activo</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @(t.FechaSuspension.HasValue
+                                            ? t.FechaSuspension.Value.ToString("dd/MM/yyyy")
+                                            : "—")
+                                    </td>
+                                    <td class="text-end">
+                                        @if (!t.Suspendido)
+                                        {
+                                            <form asp-action="SuspenderTratamiento" asp-controller="Expediente" method="post" class="d-inline form-suspender">
+                                                <input type="hidden" name="id" value="@t.Id" />
+                                                <input type="hidden" name="pacienteId" value="@Model.Paciente.Id" />
+
+                                                <button type="button" class="btn btn-outline-warning btn-sm px-3"
+                                                        onclick="confirmarSuspension(this, '¿Deseas suspender este tratamiento?')">
+                                                    Suspender
+                                                </button>
+                                            </form>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+
+        @*Medicamentos*@
+        <div class="tab-pane fade" id="medicamentos" role="tabpanel">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0">Medicamentos</h5>
+                <button class="btn btn-outline-primary btn-sm px-3" data-bs-toggle="collapse"
+                        data-bs-target="#formMedicamento">
+                    + Agregar
+                </button>
+            </div>
+
+            <div class="collapse mb-3" id="formMedicamento">
+                <div class="card border-0 bg-light rounded-3 p-3">
+                    <form asp-action="AgregarMedicamento" asp-controller="Expediente" method="post">
+                        <input type="hidden" name="PacienteId" value="@Model.Paciente.Id" />
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger small py-2 border-0"></div>
+                        <div class="row g-2 align-items-end">
+                            <div class="col-md-8 form-group">
+                                <label class="form-label small fw-bold">Seleccionar Medicamento</label>
+                                <select name="MedicamentoId" asp-items="@Model.MedicamentosCatalogo"
+                                        class="form-select">
+                                    <option value="">-- Seleccione --</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <button type="submit" class="btn btn-primary w-100">Asignar</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            @if (!Model.Medicamentos.Any())
+            {
+                <p class="text-muted small fst-italic">No hay medicamentos registrados para este paciente.</p>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle table-sm">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Medicamento</th>
+                                <th>Médico que asignó</th>
+                                <th>Fecha Asignación</th>
+                                <th>Estado</th>
+                                <th>Fecha Suspensión</th>
+                                <th class="text-end">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var m in Model.Medicamentos)
+                            {
+                                <tr class="@(m.Suspendido ? "table-secondary text-muted" : "")">
+                                    <td class="fw-bold">@m.Medicamento?.NombreMedicamento</td>
+                                    <td>@m.Medico?.NombreCompleto</td>
+                                    <td>@m.FechaAsignacion.ToString("dd/MM/yyyy")</td>
+                                    <td>
+                                        @if (m.Suspendido)
+                                        {
+                                            <span class="badge bg-secondary">Suspendido</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success">Activo</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @(m.FechaSuspension.HasValue
+                                            ? m.FechaSuspension.Value.ToString("dd/MM/yyyy")
+                                            : "—")
+                                    </td>
+                                    <td class="text-end">
+                                        @if (!m.Suspendido)
+                                        {
+                                            <form asp-action="SuspenderMedicamento" asp-controller="Expediente" method="post" class="d-inline form-suspender">
+                                                <input type="hidden" name="id" value="@m.Id" />
+                                                <input type="hidden" name="pacienteId" value="@Model.Paciente.Id" />
+
+                                                <button type="button" class="btn btn-outline-warning btn-sm px-3"
+                                                        onclick="confirmarSuspension(this, '¿Deseas suspender este medicamento?')">
+                                                    Suspender
+                                                </button>
+                                            </form>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+
+        @*Examenes*@
+        <div class="tab-pane fade" id="examenes" role="tabpanel">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0">Resultados de Exámenes</h5>
+                <button class="btn btn-outline-primary btn-sm px-3" data-bs-toggle="collapse"
+                        data-bs-target="#formExamen">
+                    + Agregar
+                </button>
+            </div>
+
+            <div class="collapse mb-3" id="formExamen">
+                <div class="card border-0 bg-light rounded-3 p-3">
+                    <form asp-action="AgregarExamen" asp-controller="Expediente"
+                          method="post" enctype="multipart/form-data">
+                        <input type="hidden" name="PacienteId" value="@Model.Paciente.Id" />
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger small py-2 border-0"></div>
+                        <div class="row g-3">
+                            <div class="col-md-6 form-group">
+                                <label class="form-label small fw-bold">Descripción del examen</label>
+                                <textarea name="Descripcion" class="form-control" rows="3"
+                                          placeholder="Ej: Radiografía de tórax — control mensual" maxlength="500"></textarea>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label class="form-label small fw-bold">Archivo (imagen o PDF)</label>
+                                <input type="file" name="Archivo" class="form-control"
+                                       accept=".jpg,.jpeg,.png,.gif,.webp,.pdf" />
+                                <small class="text-muted">Formatos: JPG, PNG, GIF, WEBP, PDF</small>
+                            </div>
+                        </div>
+                        <div class="mt-3 text-end">
+                            <button type="submit" class="btn btn-primary px-4">Subir Examen</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            @if (!Model.Examenes.Any())
+            {
+                <p class="text-muted small fst-italic">No hay exámenes registrados para este paciente.</p>
+            }
+            else
+            {
+                <div class="row g-3 mt-1">
+                    @foreach (var e in Model.Examenes)
+                    {
+                        <div class="col-md-6 col-lg-4">
+                            <div class="card border-0 shadow-sm rounded-3 h-100">
+                                <div class="card-body p-3">
+
+                                    @{
+                                        var ext = System.IO.Path.GetExtension(e.ArchivoRuta ?? "").ToLower();
+                                        bool esPdf = ext == ".pdf";
+                                    }
+
+                                    @if (esPdf)
+                                    {
+                                        <div class="text-center py-3 bg-light rounded-2 mb-2">
+                                            <span class="fs-1 text-danger">📄</span>
+                                            <p class="small text-muted mb-0">Documento PDF</p>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <img src="@e.ArchivoRuta" alt="Examen"
+                                             class="img-fluid rounded-2 mb-2 w-100"
+                                             style="max-height: 160px; object-fit: cover;" />
+                                    }
+
+                                    <p class="small mb-1">@e.Descripcion</p>
+                                    <p class="text-muted small mb-1">
+                                        <strong>Médico:</strong> @e.Medico?.NombreCompleto
+                                    </p>
+                                    <p class="text-muted small mb-2">
+                                        <strong>Fecha:</strong> @e.FechaSubida.ToString("dd/MM/yyyy HH:mm")
+                                    </p>
+                                    <a href="@e.ArchivoRuta" target="_blank"
+                                       class="btn btn-outline-secondary btn-sm w-100">
+                                        @(esPdf ? "Ver PDF" : "Ver imagen")
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        @*Historial Clinico*@
+        <div class="tab-pane fade" id="historial" role="tabpanel">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0">Historial Clínico</h5>
+                <button class="btn btn-outline-primary btn-sm px-3" data-bs-toggle="collapse"
+                        data-bs-target="#formNota">
+                    + Agregar nota
+                </button>
+            </div>
+
+            <div class="collapse mb-4" id="formNota">
+                <div class="card border-0 bg-light rounded-3 p-3">
+                    <form asp-action="AgregarNota" asp-controller="Expediente" method="post">
+                        <input type="hidden" name="PacienteId" value="@Model.Paciente.Id" />
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger small py-2 border-0"></div>
+                        <div class="form-group mb-2">
+                            <label class="form-label small fw-bold">Nota clínica</label>
+                            @* Editor de texto enriquecido (TinyMCE) *@
+                            <textarea name="Nota" class="editor-richtext"></textarea>
+                        </div>
+                        <div class="mt-3 text-end">
+                            <button type="submit" class="btn btn-primary px-4">
+                                Guardar Nota
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            @if (!Model.HistorialClinico.Any())
+            {
+                <p class="text-muted small fst-italic">No hay notas en el historial clínico de este paciente.</p>
+            }
+            else
+            {
+                <div class="d-flex flex-column gap-3">
+                    @foreach (var nota in Model.HistorialClinico) // Ya viene ordenado desc desde el controller
+                    {
+                        <div class="card border-0 shadow-sm rounded-3">
+                            <div class="card-body p-3">
+                                <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-2">
+                                    <div>
+                                        <span class="fw-bold text-primary small">@nota.Medico?.NombreCompleto</span>
+                                        <span class="text-muted small ms-2">— Médico tratante</span>
+                                    </div>
+                                    <span class="badge bg-light text-dark border small">
+                                        @nota.FechaRegistro.ToString("dd/MM/yyyy HH:mm")
+                                    </span>
+                                </div>
+                                
+                                <div class="nota-contenido border-top pt-2 mt-1" style="font-size: 0.92rem;">
+                                    @Html.Raw(nota.Nota)
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    
+    <script>
+        // Mantener el tab activo despues de una acción (ej agregar padecimeinto)
+        @if (TempData["ActiveTab"] != null)
+        {
+                <text>
+                        const tabTrigger = document.getElementById('tab-@TempData["ActiveTab"]');
+                        if (tabTrigger) {
+                            new bootstrap.Tab(tabTrigger).show();
+                        }
+                </text>
+        }
+
+        // SweetAlert2 para confirmación de suspensión
+        async function confirmarSuspension(botonElement, mensajeTexto) {
+            // Se busca el formulario más cercano al botón para enviarlo después de la confirmación
+            const form = botonElement.closest('form');
+
+            const result = await Swal.fire({
+                title: '¿Estás seguro?',
+                text: mensajeTexto,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#f0ad4e', 
+                cancelButtonColor: '#6c757d',  
+                confirmButtonText: 'Sí, suspender',
+                cancelButtonText: 'Cancelar'
+            });
+
+            // Se envia el formulario si el usuario confirma
+            if (result.isConfirmed && form) {
+                form.submit();
+            }
+        }
+    </script>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <script>toastr.success('@TempData["SuccessMessage"]');</script>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <script>toastr.error('@TempData["ErrorMessage"]');</script>
+    }
+}

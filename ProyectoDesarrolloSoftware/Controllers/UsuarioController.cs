@@ -22,6 +22,7 @@ namespace ProyectoDesarrolloSoftware.Controllers
             _context = context;
         }
 
+        // GET: Usuario
         public async Task<IActionResult> Index()
         {
             var users = await _userManager.Users.ToListAsync();
@@ -48,12 +49,14 @@ namespace ProyectoDesarrolloSoftware.Controllers
             return View(vms);
         }
 
-          [HttpGet]
+        // GET: Usuario/Create
+        [HttpGet]
         public async Task<IActionResult> Create()
         {
             return View(await BuildVM(new UsuarioViewModel()));
         }
 
+        // POST: Usuario/Create
         [HttpPost]
         public async Task<IActionResult> Create(UsuarioViewModel vm)
         {
@@ -132,6 +135,7 @@ namespace ProyectoDesarrolloSoftware.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        // GET: Usuario/Edit/5
         [HttpGet]
         public async Task<IActionResult> Edit(string id)
         {
@@ -156,6 +160,7 @@ namespace ProyectoDesarrolloSoftware.Controllers
             return View(await BuildVM(vm));
         }
 
+        // POST: Usuario/Edit/5
         [HttpPost]
         [ActionName("Edit")]
         public async Task<IActionResult> EditConfirm(UsuarioViewModel vm)
@@ -190,6 +195,7 @@ namespace ProyectoDesarrolloSoftware.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        // POST: Usuario/ToggleBloqueo/5
         [HttpPost]
         public async Task<IActionResult> ToggleBloqueo(string id)
         {
@@ -204,6 +210,7 @@ namespace ProyectoDesarrolloSoftware.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        // GET: Usuario/Delete/5
         [HttpGet]
         public async Task<IActionResult> Delete(string id)
         {
@@ -222,6 +229,7 @@ namespace ProyectoDesarrolloSoftware.Controllers
             });
         }
 
+        // POST: Usuario/Delete/5
         [HttpPost]
         [ActionName("Delete")]
         public async Task<IActionResult> DeleteConfirmed(string id)
@@ -249,7 +257,7 @@ namespace ProyectoDesarrolloSoftware.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-
+        // Método privado para construir el ViewModel con la lista de médicos
         private async Task<UsuarioViewModel> BuildVM(UsuarioViewModel vm)
         {
             vm.MedicosList = await _context.Medicos

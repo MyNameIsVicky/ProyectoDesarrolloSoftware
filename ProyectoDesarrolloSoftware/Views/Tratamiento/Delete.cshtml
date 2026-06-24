@@ -1,0 +1,35 @@
+﻿@model ProyectoDesarrolloSoftware.Models.ModuloMedicina.Tratamiento
+
+@{
+    ViewData["Title"] = "Eliminar Tratamiento";
+}
+
+<div class="container mt-5">
+    <div class="text-center mb-4">
+        <h2 class="text-danger fw-bold display-5">¿Está seguro de eliminar este tratamiento?</h2>
+        <p class="text-muted">Esta acción eliminará permanentemente el registro del sistema.</p>
+        <hr class="w-25 mx-auto text-danger" />
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm rounded-3 p-4">
+                <dl class="row mb-4 fs-5 justify-content-center text-center">
+                    <dt class="col-sm-4 text-muted">Tratamiento:</dt>
+                    <dd class="col-sm-8 fw-bold text-dark">@Model.Nombre</dd>
+
+                    <dt class="col-sm-4 text-muted">Descripción:</dt>
+                    <dd class="col-sm-8 text-dark">@Model.Descripcion</dd>
+                </dl>
+
+                <form asp-action="Delete">
+                    <input type="hidden" asp-for="Id" />
+                    <div class="d-flex flex-column flex-md-row gap-2">
+                        <button type="submit" class="btn btn-outline-danger py-2 fw-bold flex-fill rounded-2">Sí, Eliminar</button>
+                        <a asp-action="Index" class="btn btn-outline-info py-2 fw-bold flex-fill rounded-2">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

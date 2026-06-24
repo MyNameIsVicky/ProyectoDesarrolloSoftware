@@ -1,50 +1,74 @@
-﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using ProyectoDesarrolloSoftware.Models.Expedientes;
+using System.ComponentModel.DataAnnotations;
 
 namespace ProyectoDesarrolloSoftware.Models.ViewModels
 {
-    // ViewModel para el expediente completo de un paciente.
-
     public class ExpedienteViewModel
     {
-        // ValidateNever es para evitar validaciones innecesarias en las propiedades que no se envían desde el formulario, sino que se cargan desde la base de datos
-        [ValidateNever]
         public Paciente Paciente { get; set; } = null!;
+        public string NombrePaciente { get; set; } = string.Empty;
+        public string CedulaPaciente { get; set; } = string.Empty;
 
-        [ValidateNever]
-        public IEnumerable<ExpedientePadecimiento> Padecimientos { get; set; } = new List<ExpedientePadecimiento>();
+        public List<ExpedientePadecimiento> Padecimientos { get; set; } = new();
+        public List<ExpedienteTratamiento> Tratamientos { get; set; } = new();
+        public List<ExpedienteMedicamento> Medicamentos { get; set; } = new();
+        public List<ExamenMedico> Examenes { get; set; } = new();
+        public List<HistorialClinico> HistorialClinico { get; set; } = new(); // ya viene ordenado desc desde el controller
 
-        [ValidateNever]
-        public IEnumerable<ExpedienteTratamiento> Tratamientos { get; set; } = new List<ExpedienteTratamiento>();
+        // Para los select a la hora de agregar un nuevo padecimiento, tratamiento o medicamento al expediente
+        public IEnumerable<SelectListItem> PadecimientosCatalogo { get; set; } = new List<SelectListItem>();
+        public IEnumerable<SelectListItem> TratamientosCatalogo { get; set; } = new List<SelectListItem>();
+        public IEnumerable<SelectListItem> MedicamentosCatalogo { get; set; } = new List<SelectListItem>();
+    }
+    // VM a la hora de agregar con sus respectivas validaciones
+    public class AsignarPadecimientoViewModel
+    {
+        [Required]
+        public int PacienteId { get; set; }
 
-        [ValidateNever]
-        public IEnumerable<ExpedienteMedicamento> Medicamentos { get; set; } = new List<ExpedienteMedicamento>();
+        [Required(ErrorMessage = "Seleccione un padecimiento")]
+        public int PadecimientoId { get; set; }
+    }
 
-        [ValidateNever]
-        public IEnumerable<ExamenMedico> Examenes { get; set; } = new List<ExamenMedico>();
+    public class AsignarTratamientoViewModel
+    {
+        [Required]
+        public int PacienteId { get; set; }
 
+        [Required(ErrorMessage = "Seleccione un tratamiento")]
+        public int TratamientoId { get; set; }
+    }
 
-        // Historial ordenado del más reciente al menos reciente
-        [ValidateNever]
-        public IEnumerable<HistorialClinico> Historial { get; set; } = new List<HistorialClinico>();
+    public class AsignarMedicamentoViewModel
+    {
+        [Required]
+        public int PacienteId { get; set; }
 
-        // Listas para los selects de asignación
-        [ValidateNever]
-        public IEnumerable<SelectListItem> PadecimientosList { get; set; } = new List<SelectListItem>();
+        [Required(ErrorMessage = "Seleccione un medicamento")]
+        public int MedicamentoId { get; set; }
+    }
 
-        [ValidateNever]
-        public IEnumerable<SelectListItem> TratamientosList { get; set; } = new List<SelectListItem>();
+    public class AgregarExamenViewModel
+    {
+        [Required]
+        public int PacienteId { get; set; }
 
-        [ValidateNever]
-        public IEnumerable<SelectListItem> MedicamentosList { get; set; } = new List<SelectListItem>();
+        [Required(ErrorMessage = "La descripción es obligatoria")]
+        [StringLength(500)]
+        public string Descripcion { get; set; } = string.Empty;
 
-        // Para la nueva nota de historial
-        public string? NuevaNotaHtml { get; set; }
+        [Required(ErrorMessage = "Debe adjuntar un archivo (imagen o PDF)")]
+        public IFormFile Archivo { get; set; } = null!;
+    }
 
-        // Para la nueva asignación de examen
-        [ValidateNever]
-        public IFormFile? ArchivoExamen { get; set; }
-        public string? DescripcionExamen { get; set; }
+    public class AgregarNotaHistorialViewModel
+    {
+        [Required]
+        public int PacienteId { get; set; }
+
+        [Required(ErrorMessage = "La nota no puede estar vacía")]
+        public string Nota { get; set; } = string.Empty;
     }
 }
