@@ -12,7 +12,7 @@ using ProyectoDesarrolloSoftware.Models.ViewModels;
 namespace ProyectoDesarrolloSoftware.Controllers
 {
     // Permiso para que solo el médico pueda agregar/suspender cosas del expediente o escribir notas 
-    [Authorize(Roles = "Medico")]
+    [Authorize(Roles = "Medico, Administrador")]
     public class ExpedienteController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -76,14 +76,12 @@ namespace ProyectoDesarrolloSoftware.Controllers
                     .OrderByDescending(x => x.FechaSubida)
                     .ToListAsync(),
 
-                // Punto III: más reciente primero
                 HistorialClinico = await _context.HistorialClinicos
                     .Include(x => x.Medico)
                     .Where(x => x.PacienteId == pacienteId)
                     .OrderByDescending(x => x.FechaRegistro)
                     .ToListAsync(),
-                // Ca
-
+                
                 PadecimientosCatalogo = await _context.Padecimientos
                     .Select(p => new SelectListItem { Value = p.Id.ToString(), Text = p.Nombre })
                     .ToListAsync(),
