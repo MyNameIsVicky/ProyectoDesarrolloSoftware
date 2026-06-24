@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ProyectoDesarrolloSoftware.Data;
 
@@ -11,9 +12,11 @@ using ProyectoDesarrolloSoftware.Data;
 namespace ProyectoDesarrolloSoftware.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260624040224_examenLab")]
+    partial class examenLab
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -72,6 +75,71 @@ namespace ProyectoDesarrolloSoftware.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetRoleClaims", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUser", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("NormalizedEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("NormalizedUserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("SecurityStamp")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("UserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedEmail")
+                        .HasDatabaseName("EmailIndex");
+
+                    b.HasIndex("NormalizedUserName")
+                        .IsUnique()
+                        .HasDatabaseName("UserNameIndex")
+                        .HasFilter("[NormalizedUserName] IS NOT NULL");
+
+                    b.ToTable("AspNetUsers", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
@@ -155,89 +223,6 @@ namespace ProyectoDesarrolloSoftware.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("ProyectoDesarrolloSoftware.Models.ApplicationUser", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("AccessFailedCount")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Cedula")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Email")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("LockoutEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTimeOffset?>("LockoutEnd")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<int?>("MedicoId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("NombreCompleto")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("NormalizedEmail")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("NormalizedUserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("PasswordHash")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Perfil")
-                        .HasColumnType("int");
-
-                    b.Property<string>("PhoneNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("SecurityStamp")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("UserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MedicoId");
-
-                    b.HasIndex("NormalizedEmail")
-                        .HasDatabaseName("EmailIndex");
-
-                    b.HasIndex("NormalizedUserName")
-                        .IsUnique()
-                        .HasDatabaseName("UserNameIndex")
-                        .HasFilter("[NormalizedUserName] IS NOT NULL");
-
-                    b.ToTable("AspNetUsers", (string)null);
-                });
-
             modelBuilder.Entity("ProyectoDesarrolloSoftware.Models.Especialidad", b =>
                 {
                     b.Property<int>("Id")
@@ -256,6 +241,48 @@ namespace ProyectoDesarrolloSoftware.Migrations
                     b.ToTable("Especialidades");
                 });
 
+            modelBuilder.Entity("ProyectoDesarrolloSoftware.Models.Expedientes.ExamenLaboratorio", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Descripcion")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("FechaRegistro")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("MedicoId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NombreArchivo")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PacienteId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RutaArchivo")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MedicoId");
+
+                    b.HasIndex("PacienteId");
+
+                    b.ToTable("ExamenesLaboratorio");
+                });
+
             modelBuilder.Entity("ProyectoDesarrolloSoftware.Models.Expedientes.ExpedienteMedicamento", b =>
                 {
                     b.Property<int>("Id")
@@ -270,9 +297,6 @@ namespace ProyectoDesarrolloSoftware.Migrations
                     b.Property<DateTime?>("FechaSuspension")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("MedicamentoId")
-                        .HasColumnType("int");
-
                     b.Property<int>("MedicoId")
                         .HasColumnType("int");
 
@@ -282,13 +306,16 @@ namespace ProyectoDesarrolloSoftware.Migrations
                     b.Property<bool>("Suspendido")
                         .HasColumnType("bit");
 
-                    b.HasKey("Id");
+                    b.Property<int>("TratamientoId")
+                        .HasColumnType("int");
 
-                    b.HasIndex("MedicamentoId");
+                    b.HasKey("Id");
 
                     b.HasIndex("MedicoId");
 
                     b.HasIndex("PacienteId");
+
+                    b.HasIndex("TratamientoId");
 
                     b.ToTable("ExpedienteMedicamentos");
                 });
@@ -301,10 +328,10 @@ namespace ProyectoDesarrolloSoftware.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("FechaAsignacion")
-                        .HasColumnType("datetime2");
+                    b.Property<bool>("Activo")
+                        .HasColumnType("bit");
 
-                    b.Property<DateTime?>("FechaSuspension")
+                    b.Property<DateTime>("FechaAsignacion")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("MedicoId")
@@ -316,8 +343,8 @@ namespace ProyectoDesarrolloSoftware.Migrations
                     b.Property<int>("PadecimientoId")
                         .HasColumnType("int");
 
-                    b.Property<bool>("Suspendido")
-                        .HasColumnType("bit");
+                    b.Property<DateTime?>("fechaSuspension")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -424,6 +451,10 @@ namespace ProyectoDesarrolloSoftware.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<string>("UsuarioCedula")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.ToTable("Medicos");
@@ -514,13 +545,25 @@ namespace ProyectoDesarrolloSoftware.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("UsuarioId")
+                    b.Property<string>("Cedula")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Correo")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("NombreCompleto")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("UsuarioId")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("UsuarioId");
 
                     b.ToTable("Pacientes");
                 });
@@ -536,7 +579,7 @@ namespace ProyectoDesarrolloSoftware.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("ProyectoDesarrolloSoftware.Models.ApplicationUser", null)
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -545,7 +588,7 @@ namespace ProyectoDesarrolloSoftware.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("ProyectoDesarrolloSoftware.Models.ApplicationUser", null)
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -560,7 +603,7 @@ namespace ProyectoDesarrolloSoftware.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ProyectoDesarrolloSoftware.Models.ApplicationUser", null)
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -569,7 +612,7 @@ namespace ProyectoDesarrolloSoftware.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("ProyectoDesarrolloSoftware.Models.ApplicationUser", null)
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -595,42 +638,8 @@ namespace ProyectoDesarrolloSoftware.Migrations
                     b.Navigation("Paciente");
                 });
 
-            modelBuilder.Entity("ProyectoDesarrolloSoftware.Models.ApplicationUser", b =>
-                {
-                    b.HasOne("ProyectoDesarrolloSoftware.Models.Medico", "Medico")
-                        .WithMany()
-                        .HasForeignKey("MedicoId");
-
-                    b.Navigation("Medico");
-                });
-
-            modelBuilder.Entity("ProyectoDesarrolloSoftware.Models.Expedientes.ExamenMedico", b =>
-                {
-                    b.HasOne("ProyectoDesarrolloSoftware.Models.Medico", "Medico")
-                        .WithMany()
-                        .HasForeignKey("MedicoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ProyectoDesarrolloSoftware.Models.Paciente", "Paciente")
-                        .WithMany()
-                        .HasForeignKey("PacienteId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Medico");
-
-                    b.Navigation("Paciente");
-                });
-
             modelBuilder.Entity("ProyectoDesarrolloSoftware.Models.Expedientes.ExpedienteMedicamento", b =>
                 {
-                    b.HasOne("ProyectoDesarrolloSoftware.Models.ModuloMedicina.Medicamento", "Medicamento")
-                        .WithMany()
-                        .HasForeignKey("MedicamentoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("ProyectoDesarrolloSoftware.Models.Medico", "Medico")
                         .WithMany()
                         .HasForeignKey("MedicoId")
@@ -643,11 +652,17 @@ namespace ProyectoDesarrolloSoftware.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Medicamento");
+                    b.HasOne("ProyectoDesarrolloSoftware.Models.ModuloMedicina.Tratamiento", "Tratamiento")
+                        .WithMany()
+                        .HasForeignKey("TratamientoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Medico");
 
                     b.Navigation("Paciente");
+
+                    b.Navigation("Tratamiento");
                 });
 
             modelBuilder.Entity("ProyectoDesarrolloSoftware.Models.Expedientes.ExpedientePadecimiento", b =>
@@ -658,7 +673,7 @@ namespace ProyectoDesarrolloSoftware.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ProyectoDesarrolloSoftware.Models.Paciente", "Paciente")
+                    b.HasOne("ProyectoDesarrolloSoftware.Models.Paciente", null)
                         .WithMany("Padecimientos")
                         .HasForeignKey("PacienteId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -671,8 +686,6 @@ namespace ProyectoDesarrolloSoftware.Migrations
                         .IsRequired();
 
                     b.Navigation("Medico");
-
-                    b.Navigation("Paciente");
 
                     b.Navigation("Padecimiento");
                 });
@@ -740,17 +753,6 @@ namespace ProyectoDesarrolloSoftware.Migrations
                     b.Navigation("Especialidad");
 
                     b.Navigation("Medico");
-                });
-
-            modelBuilder.Entity("ProyectoDesarrolloSoftware.Models.Paciente", b =>
-                {
-                    b.HasOne("ProyectoDesarrolloSoftware.Models.ApplicationUser", "Usuario")
-                        .WithMany()
-                        .HasForeignKey("UsuarioId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Usuario");
                 });
 
             modelBuilder.Entity("ProyectoDesarrolloSoftware.Models.Especialidad", b =>
