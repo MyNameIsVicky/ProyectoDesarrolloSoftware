@@ -288,6 +288,39 @@ namespace ProyectoDesarrolloSoftware.Controllers
             return RedirectToAction(nameof(Ver), new { pacienteId = vm.PacienteId });
         }
 
+        // POST: Eliminar examen
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EliminarExamen(int id, int pacienteId)
+        {
+            var examen = await _context.Examenes.FindAsync(id);
+
+            if (examen == null)
+                return NotFound();
+
+            // Eliminar archivo físico
+            if (!string.IsNullOrWhiteSpace(examen.ArchivoRuta))
+            {
+                var ruta = Path.Combine(
+                    _env.WebRootPath,
+                    examen.ArchivoRuta.TrimStart('/').Replace("/", Path.DirectorySeparatorChar.ToString())
+                );
+
+                if (System.IO.File.Exists(ruta))
+                {
+                    System.IO.File.Delete(ruta);
+                }
+            }
+
+            // Eliminar registro de la BD
+            _context.Examenes.Remove(examen);
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Examen eliminado correctamente.";
+
+            return RedirectToAction(nameof(Ver), new { pacienteId });
+        }
+
         // POST: Agregar nota al historial clínico
         [HttpPost]
         [ValidateAntiForgeryToken]
