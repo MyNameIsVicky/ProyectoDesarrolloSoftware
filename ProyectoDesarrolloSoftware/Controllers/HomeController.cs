@@ -6,30 +6,14 @@ namespace ProyectoDesarrolloSoftware.Controllers
 {
     public class HomeController : Controller
     {
-        // GET: /Home/Index
         public IActionResult Index()
         {
+            // Si no hay sesión activa, ir directo al login
+            if (!User.Identity?.IsAuthenticated ?? true)
+                return RedirectToAction("Login", "Cuenta");
+
             return View();
         }
-
-        // GET: /Home/Privacy
-        public IActionResult Privacy()
-        {
-            return View();
-        }
-
-        // GET: /Home/Error
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
-
-        /*
-       public IActionResult VistaAdministracion()
-       {
-           return View();
-       }
-        */
     }
+
 }

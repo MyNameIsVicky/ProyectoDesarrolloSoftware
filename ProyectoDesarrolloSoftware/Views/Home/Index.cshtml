@@ -1,17 +1,137 @@
 ﻿@{
-    ViewData["Title"] = "Bienvenida";
+    ViewData["Title"] = "Inicio";
 }
 
-<div class="text-center mt-5">
-    <h1 class="display-4">Bienvenido al Centro Médico Carlos Monge Alfaro</h1>
-    <p class="lead mt-4">Sistema integral de gestión de pacientes y especialidades.</p>
+<div class="container mt-5">
 
-    <div class="mt-5 d-flex justify-content-center gap-3">
-        <a asp-controller="Cuenta" asp-action="Login" class="btn btn-outline-primary btn-lg shadow">
-            Iniciar Sesión
-        </a>
-        <a asp-controller="Cuenta" asp-action="Registrar" class="btn btn-primary btn-lg shadow">
-            Registrarse como Paciente
-        </a>
+    <div class="text-center mb-5">
+        <h2 class="display-4">Bienvenido al Centro Médico</h2>
+        <p class="text-muted lead">Carlos Monge Alfaro &mdash; @User.Identity!.Name</p>
+        <hr class="w-25 mx-auto" />
     </div>
+
+    @* Módulo de Administración — solo Administrador *@
+    @if (User.IsInRole("Administrador"))
+    {
+        <h4 class="mb-3">Módulo de Administración</h4>
+        <div class="row justify-content-center g-4 mb-5">
+
+            <div class="col-md-4">
+                <div class="card h-100 text-center p-4 shadow-sm border-0">
+                    <div class="card-body d-flex flex-column justify-content-between">
+                        <div class="mb-4">
+                            <h3 class="h4 card-title fw-bold">Especialidades</h3>
+                            <p class="text-muted small">Registrar, administrar, eliminar y ver especialidades.</p>
+                        </div>
+                        <a asp-controller="Especialidad" asp-action="Index" class="btn btn-outline-primary w-100 py-2">
+                            Administrar Especialidades
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card h-100 text-center p-4 shadow-sm border-0">
+                    <div class="card-body d-flex flex-column justify-content-between">
+                        <div class="mb-4">
+                            <h3 class="h4 card-title fw-bold">Médicos Tratantes</h3>
+                            <p class="text-muted small">Registrar, administrar, eliminar y ver el registro de doctores.</p>
+                        </div>
+                        <a asp-controller="Medico" asp-action="Index" class="btn btn-outline-primary w-100 py-2">
+                            Administrar Médicos
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card h-100 text-center p-4 shadow-sm border-0">
+                    <div class="card-body d-flex flex-column justify-content-between">
+                        <div class="mb-4">
+                            <h3 class="h4 card-title fw-bold">Usuarios</h3>
+                            <p class="text-muted small">Registrar, administrar, eliminar y ver usuarios.</p>
+                        </div>
+                        <a asp-controller="Usuario" asp-action="Index" class="btn btn-outline-primary w-100 py-2">
+                            Administrar Usuarios
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <hr class="w-75 mx-auto mb-5" />
+    }
+
+    @* Módulo de Medicina — Administrador y Médico *@
+    @if (User.IsInRole("Administrador") || User.IsInRole("Medico"))
+    {
+        <h4 class="mb-3">Módulo de Medicina</h4>
+        <div class="row justify-content-center g-4 mb-5">
+
+            <div class="col-md-4">
+                <div class="card h-100 text-center p-4 shadow-sm border-0">
+                    <div class="card-body d-flex flex-column justify-content-between">
+                        <div class="mb-4">
+                            <h3 class="h4 card-title fw-bold">Pacientes</h3>
+                            <p class="text-muted small">Ver listado de pacientes, buscar por nombre o cédula e ingresar al expediente.</p>
+                        </div>
+                        <a asp-controller="Paciente" asp-action="Index" class="btn btn-outline-primary w-100 py-2">
+                            Administrar Pacientes
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card h-100 text-center p-4 shadow-sm border-0">
+                    <div class="card-body d-flex flex-column justify-content-between">
+                        <div class="mb-4">
+                            <h3 class="h4 card-title fw-bold">Padecimientos</h3>
+                            <p class="text-muted small">Registrar, administrar, eliminar y ver padecimientos médicos.</p>
+                        </div>
+                        <a asp-controller="Padecimiento" asp-action="Index" class="btn btn-outline-primary w-100 py-2">
+                            Administrar Padecimientos
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card h-100 text-center p-4 shadow-sm border-0">
+                    <div class="card-body d-flex flex-column justify-content-between">
+                        <div class="mb-4">
+                            <h3 class="h4 card-title fw-bold">Tratamientos</h3>
+                            <p class="text-muted small">Registrar, administrar, eliminar y ver tratamientos asignados.</p>
+                        </div>
+                        <a asp-controller="Tratamiento" asp-action="Index" class="btn btn-outline-primary w-100 py-2">
+                            Administrar Tratamientos
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card h-100 text-center p-4 shadow-sm border-0">
+                    <div class="card-body d-flex flex-column justify-content-between">
+                        <div class="mb-4">
+                            <h3 class="h4 card-title fw-bold">Medicamentos</h3>
+                            <p class="text-muted small">Registrar, administrar, eliminar y ver catálogo de medicamentos.</p>
+                        </div>
+                        <a asp-controller="Medicamento" asp-action="Index" class="btn btn-outline-primary w-100 py-2">
+                            Administrar Medicamentos
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    }
+
+    @if (User.IsInRole("Paciente"))
+    {
+        <div class="text-center mt-4">
+            <p class="text-muted">Para consultas o más información, contacte a su médico tratante.</p>
+        </div>
+    }
+
 </div>
