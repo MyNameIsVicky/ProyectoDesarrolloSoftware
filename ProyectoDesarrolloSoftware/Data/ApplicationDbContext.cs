@@ -43,8 +43,7 @@ namespace ProyectoDesarrolloSoftware.Data
 
         public DbSet<ExamenMedico> Examenes { get; set; }
 
+        public DbSet<ExamenLaboratorio> ExamenesLaboratorio { get; set; }
 
-    }
-
-
+        }
 }
