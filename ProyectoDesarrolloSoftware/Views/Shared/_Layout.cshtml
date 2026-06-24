@@ -1,9 +1,9 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - ProyectoDesarrolloSoftware</title>
+    <title>@ViewData["Title"] - Centro Médico Carlos Monge Alfaro</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/morph.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
@@ -15,33 +15,94 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">ProyectoDesarrolloSoftware</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+
+                <a class="navbar-brand fw-bold" asp-controller="Home" asp-action="Index">
+                    🏥 C.M. Carlos Monge Alfaro
+                </a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                        data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
+
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                        @if (!User.Identity.IsAuthenticated)
+
+                    @* Menú izquierdo: módulos según rol *@
+                    <ul class="navbar-nav me-auto">
+
+                        @* Módulo de Administración — solo Administrador *@
+                        @if (User.IsInRole("Administrador"))
                         {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Cuenta" asp-action="Login">Login</a>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link text-dark dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                                    Administración
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" asp-controller="Especialidad" asp-action="Index">Especialidades</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Medico" asp-action="Index">Médicos</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Usuario" asp-action="Index">Usuarios</a></li>
+                                </ul>
+                            </li>
+                        }
+
+                        @* Módulo de Medicina — Administrador y Médico *@
+                        @if (User.IsInRole("Administrador") || User.IsInRole("Medico"))
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link text-dark dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                                    Medicina
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" asp-controller="Paciente" asp-action="Index">Pacientes</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Expediente" asp-action="Index">Expedientes</a></li>
+                                    <li><hr class="dropdown-divider" /></li>
+                                    <li><a class="dropdown-item" asp-controller="Padecimiento" asp-action="Index">Padecimientos</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Tratamiento" asp-action="Index">Tratamientos</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Medicamento" asp-action="Index">Medicamentos</a></li>
+                                </ul>
+                            </li>
+                        }
+
+                    </ul>
+
+                    @* Menú derecho: usuario / sesión *@
+                    <ul class="navbar-nav ms-auto">
+                        @if (User.Identity?.IsAuthenticated ?? false)
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link text-dark dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                                    👤 @User.Identity!.Name
+                                    @foreach (var role in new[] { "Administrador", "Medico", "Paciente" })
+                                    {
+                                        if (User.IsInRole(role))
+                                        {
+                                            <span class="badge bg-primary ms-1">@role</span>
+                                        }
+                                    }
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <form asp-controller="Cuenta" asp-action="Logout" method="post">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="dropdown-item text-danger">
+                                                Cerrar Sesión
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
                             </li>
                         }
                         else
                         {
                             <li class="nav-item">
-                                <form asp-controller="Cuenta" asp-action="Logout" method="post">
-                                    <button type="submit" class="nav-link text-dark">Cerrar Sesión</button>
-                                </form>
+                                <a class="nav-link text-dark" asp-controller="Cuenta" asp-action="Login">
+                                    Iniciar Sesión
+                                </a>
                             </li>
                         }
                     </ul>
+
                 </div>
             </div>
         </nav>
@@ -55,7 +116,7 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2026 - ProyectoDesarrolloSoftware - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; 2026 - Centro Médico Carlos Monge Alfaro
         </div>
     </footer>
 
@@ -66,35 +127,19 @@
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-
     <script src="https://cdn.jsdelivr.net/npm/tinymce@7/tinymce.min.js"></script>
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-
         if (document.querySelector('.editor-richtext')) {
-
         tinymce.init({
         selector: '.editor-richtext',
-
         height: 300,
-
         promotion: false,
         branding: false,
-
         language: 'es',
-
         menubar: true,
-
-        plugins: [
-        'lists',
-        'link',
-        'table',
-        'code',
-        'fullscreen',
-        'searchreplace'
-        ],
-
+        plugins: ['lists', 'link', 'table', 'code', 'fullscreen', 'searchreplace'],
         toolbar:
         'undo redo | ' +
         'bold italic underline | ' +
@@ -102,14 +147,10 @@
         'bullist numlist | ' +
         'table link | ' +
         'code fullscreen',
-
         setup: function (editor) {
-        editor.on('change', function () {
-        editor.save();
-        });
+        editor.on('change', function () { editor.save(); });
         }
         });
-
         }
         });
     </script>

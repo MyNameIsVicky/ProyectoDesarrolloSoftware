@@ -88,34 +88,56 @@ namespace ProyectoDesarrolloSoftware.Controllers
         // GET: Paciente/Create
         public IActionResult Create()
         {
-            return View(new PacienteViewModel());
+            return View(new UsuarioViewModel());
         }
 
         // POST: Paciente/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(PacienteViewModel vm)
+        [HttpPost]
+        public async Task<IActionResult> Create(UsuarioViewModel vm)
         {
-            ModelState.Remove("Paciente.UsuarioId");
 
-            // Validaciones basicas
-
-            if (await _userManager.FindByEmailAsync(vm.Email) != null)
-                ModelState.AddModelError(nameof(vm.Email), "Ya existe un usuario con ese correo.");
-
+            // Validaciones básicas
             if (string.IsNullOrWhiteSpace(vm.Password))
                 ModelState.AddModelError(nameof(vm.Password), "La contraseña es obligatoria.");
+
+
+            if (string.IsNullOrWhiteSpace(vm.Correo))
+                ModelState.AddModelError(nameof(vm.Correo), "El correo es obligatorio.");
+
+            if (string.IsNullOrWhiteSpace(vm.UserName))
+                ModelState.AddModelError(nameof(vm.UserName), "El nombre de usuario es obligatorio.");
+
+            // Duplicados
+            var cedulaExiste = await _context.Users
+                .AnyAsync(u => u.Cedula == vm.Cedula);
+
+            if (cedulaExiste)
+                ModelState.AddModelError(nameof(vm.Cedula), "Ya existe un usuario con esa cédula.");
+
+            var emailExiste = await _context.Users
+                .AnyAsync(u => u.Email == vm.Correo);
+
+            if (emailExiste)
+                ModelState.AddModelError(nameof(vm.Correo), "Ya existe un usuario con ese correo.");
+
+            var usernameExiste = await _context.Users
+                .AnyAsync(u => u.UserName == vm.UserName);
+
+            if (usernameExiste)
+                ModelState.AddModelError(nameof(vm.UserName), "Ya existe un usuario con ese nombre de usuario.");
 
             if (!ModelState.IsValid)
                 return View(vm);
 
             var usuario = new ApplicationUser
             {
-                UserName = vm.Email,
-                Email = vm.Email,
+                UserName = vm.UserName,
+                Email = vm.Correo,
                 NombreCompleto = vm.NombreCompleto,
                 Cedula = vm.Cedula,
-                Perfil = Perfil.Paciente 
+                Perfil = Perfil.Paciente
             };
 
             var resultado = await _userManager.CreateAsync(usuario, vm.Password!);
@@ -124,10 +146,11 @@ namespace ProyectoDesarrolloSoftware.Controllers
             {
                 foreach (var error in resultado.Errors)
                     ModelState.AddModelError("", error.Description);
+
                 return View(vm);
             }
 
-            await _userManager.AddToRoleAsync(usuario, "Paciente");
+            await _userManager.AddToRoleAsync(usuario, Perfil.Paciente.ToString());
 
             _context.Pacientes.Add(new Paciente { UsuarioId = usuario.Id });
             await _context.SaveChangesAsync();
@@ -143,47 +166,73 @@ namespace ProyectoDesarrolloSoftware.Controllers
                 .Include(p => p.Usuario)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
-            if (paciente == null || paciente.Usuario == null) return NotFound();
+            if (paciente == null || paciente.Usuario == null)
+                return NotFound();
 
-            var vm = new PacienteViewModel
+            var vm = new UsuarioViewModel
             {
-                Paciente = paciente,
-                UserName = paciente.Usuario.UserName ?? string.Empty,
+                Id = paciente.Usuario.Id,
+                UserName = paciente.Usuario.UserName ?? "",
                 NombreCompleto = paciente.Usuario.NombreCompleto,
                 Cedula = paciente.Usuario.Cedula,
-                Email = paciente.Usuario.Email ?? string.Empty
+                Correo = paciente.Usuario.Email ?? ""
             };
 
             return View(vm);
         }
 
         // POST: Paciente/Edit/5
+        // POST: Paciente/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(PacienteViewModel vm)
+        public async Task<IActionResult> Edit(UsuarioViewModel vm)
         {
-            ModelState.Remove(nameof(vm.Password));
-            
+            var paciente = await _context.Pacientes
+                .Include(p => p.Usuario)
+                .FirstOrDefaultAsync(p => p.UsuarioId == vm.Id);
+
+            if (paciente == null || paciente.Usuario == null)
+                return NotFound();
+
+            var usuarioId = paciente.UsuarioId;
+
+            // Validaciones duplicados
+            var cedulaExiste = await _context.Users
+                .AnyAsync(u => u.Cedula == vm.Cedula && u.Id != usuarioId);
+            if (cedulaExiste)
+                ModelState.AddModelError(nameof(vm.Cedula), "Ya existe un usuario con esa cédula.");
+
+            var emailExiste = await _userManager.Users
+                .AnyAsync(u => u.Email == vm.Correo && u.Id != usuarioId);
+            if (emailExiste)
+                ModelState.AddModelError(nameof(vm.Correo), "Ya existe un usuario con ese correo.");
+
+            var usernameExiste = await _userManager.Users
+                .AnyAsync(u => u.UserName == vm.UserName && u.Id != usuarioId);
+            if (usernameExiste)
+                ModelState.AddModelError(nameof(vm.UserName), "Ya existe un usuario con ese nombre de usuario.");
 
             if (!ModelState.IsValid)
                 return View(vm);
 
-            var paciente = await _context.Pacientes
-                .Include(p => p.Usuario)
-                .FirstOrDefaultAsync(p => p.Id == vm.Paciente.Id);
-
-            if (paciente == null || paciente.Usuario == null) return NotFound();
-
             paciente.Usuario.NombreCompleto = vm.NombreCompleto;
             paciente.Usuario.Cedula = vm.Cedula;
             paciente.Usuario.UserName = vm.UserName;
-           
+            paciente.Usuario.Email = vm.Correo;
 
-            await _context.SaveChangesAsync();
+            var resultado = await _userManager.UpdateAsync(paciente.Usuario); 
+
+            if (!resultado.Succeeded)
+            {
+                foreach (var error in resultado.Errors)
+                    ModelState.AddModelError("", error.Description);
+                return View(vm);
+            }
 
             TempData["SuccessMessage"] = "Paciente actualizado.";
             return RedirectToAction(nameof(Index));
         }
+
 
         // GET: Paciente/Delete/5
         public async Task<IActionResult> Delete(int id)

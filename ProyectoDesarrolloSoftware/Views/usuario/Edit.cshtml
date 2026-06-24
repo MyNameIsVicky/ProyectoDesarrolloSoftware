@@ -27,8 +27,10 @@
                         <input type="hidden" asp-for="Perfil" />
                         @if (esMedico)
                         {
-                            <input type="hidden" asp-for="MedicoId" />
+                        <input type="hidden" asp-for="NombreCompleto" />
+                        <input type="hidden" asp-for="Cedula" />             
                         }
+
 
                         <h5 class="fw-bold text-muted mb-3">Datos de Cuenta</h5>
 

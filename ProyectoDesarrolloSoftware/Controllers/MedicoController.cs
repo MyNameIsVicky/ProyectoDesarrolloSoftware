@@ -52,8 +52,14 @@ namespace ProyectoDesarrolloSoftware.Controllers
         {
             ModelState.Remove("Medico.MedicosEspecialidades");
 
-            if (await _userManager.FindByNameAsync(medicoVM.Medico.NombreCompleto) != null)
-                ModelState.AddModelError("", "El usuario ya existe.");
+            if (string.IsNullOrWhiteSpace(medicoVM.Medico.CedulaFisica))
+                ModelState.AddModelError(nameof(medicoVM.Medico.CedulaFisica), "La cédula es obligatoria.");
+
+            var cedulaExiste = await _context.Medicos
+                .AnyAsync(m => m.CedulaFisica == medicoVM.Medico.CedulaFisica);
+
+            if (cedulaExiste)
+                ModelState.AddModelError(nameof(medicoVM.Medico.CedulaFisica), "Ya existe un médico con esa cédula.");
 
             if (medicoVM.EspecialidadesIds == null || !medicoVM.EspecialidadesIds.Any())
                 ModelState.AddModelError(nameof(medicoVM.EspecialidadesIds), "Seleccione al menos una especialidad.");
@@ -64,18 +70,16 @@ namespace ProyectoDesarrolloSoftware.Controllers
                 return View(medicoVM);
             }
 
-                
             medicoVM.Medico.MedicosEspecialidades = medicoVM.EspecialidadesIds
                 .Select(id => new MedicoEspecialidad { EspecialidadId = id })
                 .ToList();
 
-            if (string.IsNullOrEmpty(medicoVM.Medico.FotoUrl))
-                medicoVM.Medico.FotoUrl = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+            medicoVM.Medico.FotoUrl ??= "https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
             _context.Medicos.Add(medicoVM.Medico);
             await _context.SaveChangesAsync();
 
-
+            TempData["SuccessMessage"] = "Médico creado.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -117,22 +121,31 @@ namespace ProyectoDesarrolloSoftware.Controllers
 
             if (medicoDb == null) return NotFound();
 
+            // Validar cédula duplicada
+            var cedulaExiste = await _context.Medicos
+                .AnyAsync(m => m.CedulaFisica == medicoVM.Medico.CedulaFisica
+                            && m.Id != medicoVM.Medico.Id);
+
+            if (cedulaExiste)
+            {
+                ModelState.AddModelError(nameof(medicoVM.Medico.CedulaFisica), "Ya existe un médico con esa cédula.");
+                await CargarEspecialidades();
+                return View(medicoVM);
+            }
+
             medicoDb.NombreCompleto = medicoVM.Medico.NombreCompleto;
             medicoDb.NumeroColegiado = medicoVM.Medico.NumeroColegiado;
             medicoDb.CedulaFisica = medicoVM.Medico.CedulaFisica;
             medicoDb.FotoUrl = medicoVM.Medico.FotoUrl;
 
-            medicoDb.MedicosEspecialidades.Clear();
+            _context.MedicoEspecialidades.RemoveRange(medicoDb.MedicosEspecialidades);
 
-            if (medicoVM.EspecialidadesIds != null)
-            {
-                medicoDb.MedicosEspecialidades = medicoVM.EspecialidadesIds
-                    .Select(id => new MedicoEspecialidad
-                    {
-                        MedicoId = medicoDb.Id,
-                        EspecialidadId = id
-                    }).ToList();
-            }
+            medicoDb.MedicosEspecialidades = medicoVM.EspecialidadesIds?
+                .Select(id => new MedicoEspecialidad
+                {
+                    MedicoId = medicoDb.Id,
+                    EspecialidadId = id
+                }).ToList() ?? new List<MedicoEspecialidad>();
 
             await _context.SaveChangesAsync();
 

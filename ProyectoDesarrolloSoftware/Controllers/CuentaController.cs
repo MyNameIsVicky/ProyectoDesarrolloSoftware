@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using ProyectoDesarrolloSoftware.Data;
 using ProyectoDesarrolloSoftware.Models;
 using ProyectoDesarrolloSoftware.Models.ViewModels;
@@ -83,8 +84,19 @@ namespace ProyectoDesarrolloSoftware.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Registrar(RegistroPacienteViewModel vm)
         {
+          
+            // Verificar si el correo ya existe en otro usuario
             if (await _userManager.FindByEmailAsync(vm.Email) != null)
                 ModelState.AddModelError(nameof(vm.Email), "Ya existe una cuenta registrada con ese correo.");
+
+            // Verificar si la cédula ya existe en otro usuario
+            var cedulaExiste = await _context.Users
+                .AnyAsync(u => u.Cedula == vm.Cedula && u.Id != vm.Cedula);
+
+            if (cedulaExiste)
+            {
+                ModelState.AddModelError(nameof(vm.Cedula), "Ya existe un usuario con esa cédula.");
+            }
 
             if (!ModelState.IsValid)
                 return View("RegistroPaciente", vm);
@@ -95,7 +107,7 @@ namespace ProyectoDesarrolloSoftware.Controllers
                 Email = vm.Email,
                 NombreCompleto = vm.NombreCompleto,
                 Cedula = vm.Cedula,
-                Perfil = Perfil.Paciente // AJUSTAR: verificar que tu enum Perfil tenga este valor
+                Perfil = Perfil.Paciente 
             };
 
             var resultado = await _userManager.CreateAsync(usuario, vm.Password);
@@ -107,7 +119,7 @@ namespace ProyectoDesarrolloSoftware.Controllers
                 return View("RegistroPaciente", vm);
             }
 
-            await _userManager.AddToRoleAsync(usuario, "Paciente");
+            await _userManager.AddToRoleAsync(usuario, Perfil.Paciente.ToString());
 
             _context.Pacientes.Add(new Paciente { UsuarioId = usuario.Id });
             await _context.SaveChangesAsync();
