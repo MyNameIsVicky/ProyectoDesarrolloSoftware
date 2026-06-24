@@ -286,6 +286,7 @@ namespace ProyectoDesarrolloSoftware.Controllers
             {
                 Id = user.Id,
                 UserName = user.UserName ?? "",
+                Cedula = user.Cedula,
                 NombreCompleto = user.NombreCompleto,
                 Correo = user.Email ?? "",
                 Perfil = user.Perfil,

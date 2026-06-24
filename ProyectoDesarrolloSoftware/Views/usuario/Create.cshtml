@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Nuevo Usuario";
 }
+
 <div class="container my-5" style="padding-bottom: 60px;">
     <div class="row justify-content-center">
         <div class="col-lg-8">
@@ -20,29 +21,40 @@
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger border-0 small py-2 mb-4 rounded-2"></div>
 
                         <div class="row g-4">
-
                             <div class="col-md-6 border-end">
-                                <h4 class="fs-5 text-faded fw-bold mb-3"> Datos Personales</h4>
 
-                                
+                                <div id="seccionDatosPersonales">
+                                    <h4 class="fs-5 fw-bold mb-3">1. Datos Personales</h4>
 
-                              <div class="form-group mb-3" id="nombreCompletoDiv">
-                                    <label asp-for="NombreCompleto" class="form-label small fw-bold">Nombre Completo</label>
-                                    <input asp-for="NombreCompleto" class="form-control" placeholder="Ej: Victoria Fallas" />
-                                    <span asp-validation-for="NombreCompleto" class="text-danger small d-block mt-1"></span>
+                                    <div class="form-group mb-3">
+                                        <label asp-for="NombreCompleto" class="form-label small fw-bold">Nombre Completo</label>
+                                        <input asp-for="NombreCompleto" class="form-control" placeholder="Ej: Victoria Fallas" />
+                                        <span asp-validation-for="NombreCompleto" class="text-danger small d-block mt-1"></span>
+                                    </div>
+
+                                    <div class="form-group mb-3">
+                                        <label asp-for="Cedula" class="form-label small fw-bold">Cédula</label>
+                                        <input asp-for="Cedula" class="form-control" placeholder="Ej: 1-1111-1111" />
+                                        <span asp-validation-for="Cedula" class="text-danger small d-block mt-1"></span>
+                                    </div>
                                 </div>
 
-                                <div class="form-group mb-3" id="cedulaDiv">
-                                    <label asp-for="Cedula" class="form-label small fw-bold">Cédula</label>
-                                    <input asp-for="Cedula" class="form-control" placeholder="Ej: 1-1111-1111" />
-                                    <span asp-validation-for="Cedula" class="text-danger small d-block mt-1"></span>
+                                <div id="seccionMedico" style="display:none;">
+                                    <h4 class="fs-5 fw-bold mb-3">1. Médico Vinculado</h4>
+
+                                    <div class="form-group mb-3">
+                                        <label asp-for="MedicoId" class="form-label small fw-bold">Seleccionar Médico</label>
+                                        <select asp-for="MedicoId" asp-items="Model.MedicosList" class="form-select" id="medicoSelect">
+                                            <option value="">-- Seleccione un médico --</option>
+                                        </select>
+                                        <span asp-validation-for="MedicoId" class="text-danger small d-block mt-1"></span>
+                                    </div>
                                 </div>
 
-                                
                             </div>
 
                             <div class="col-md-6">
-                                <h4 class="fs-5 text-faded fw-bold mb-3"> Acceso y Perfil</h4>
+                                <h4 class="fs-5 fw-bold mb-3">2. Credenciales de Acceso</h4>
 
                                 <div class="form-group mb-3">
                                     <label asp-for="UserName" class="form-label small fw-bold">Nombre de Usuario</label>
@@ -70,15 +82,8 @@
                                         <option value="Administrador">Administrador</option>
                                     </select>
                                 </div>
-
-                                <div class="form-group mb-3" id="medicoDiv" style="display:none;">
-                                    <label asp-for="MedicoId" class="form-label small fw-bold">Médico Tratante Vinculado</label>
-                                    <select asp-for="MedicoId" asp-items="Model.MedicosList" class="form-select">
-                                        <option value="">-- Seleccione un médico --</option>
-                                    </select>
-                                    <span asp-validation-for="MedicoId" class="text-danger small d-block mt-1"></span>
-                                </div>
                             </div>
+
                         </div>
 
                         <hr class="my-4 text-muted" />
@@ -97,23 +102,19 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
     <script>
-        const perfilSelect = document.getElementById('perfilSelect');
-        const medicoDiv = document.getElementById('medicoDiv');
-        const cedulaDiv = document.getElementById('cedulaDiv');
-        const nombreCompletoDiv = document.getElementById('nombreCompletoDiv');
+        const perfilSelect    = document.getElementById('perfilSelect');
+        const seccionPersonal = document.getElementById('seccionDatosPersonales');
+        const seccionMedico   = document.getElementById('seccionMedico');
 
-        function toggleCampos() {
+        function togglePerfil() {
             const esMedico = perfilSelect.value === 'Medico';
-
-            // Médico: mostrar selector de médico tratante, ocultar nombre completo y cédula
-            // porque esos datos ya están en la entidad Medico
-            medicoDiv.style.display       = esMedico ? 'block' : 'none';
-            nombreCompletoDiv.style.display = esMedico ? 'none' : 'block';
-            cedulaDiv.style.display       = esMedico ? 'none' : 'block';
+            seccionPersonal.style.display = esMedico ? 'none'  : 'block';
+            seccionMedico.style.display   = esMedico ? 'block' : 'none';
         }
 
-        perfilSelect.addEventListener('change', toggleCampos);
-        document.addEventListener('DOMContentLoaded', toggleCampos);
+        perfilSelect.addEventListener('change', togglePerfil);
+        document.addEventListener('DOMContentLoaded', togglePerfil);
     </script>
 }
