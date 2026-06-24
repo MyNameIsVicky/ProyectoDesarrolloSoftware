@@ -1,43 +1,57 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Hosting;
 using ProyectoDesarrolloSoftware.Data;
 using System.Security.Claims;
 
 namespace ProyectoDesarrolloSoftware.Controllers
 {
     [ApiController]
-    [Authorize]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Route("api/[controller]")]
     public class PacienteApiController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly IWebHostEnvironment _env;
 
-        public PacienteApiController(ApplicationDbContext context)
+        public PacienteApiController(ApplicationDbContext context, IWebHostEnvironment env)
         {
             _context = context;
+            _env = env;
         }
 
-        // Extrae el PacienteId del token JWT para asegurar que cada paciente
-        // solo vea su propia información
-        private int GetPacienteId()
+        private string GetPacienteId()
         {
-            var claim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var claim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                        ?? User.FindFirst("sub")?.Value;
+
             if (claim == null) throw new UnauthorizedAccessException();
-            return int.Parse(claim);
+
+            return claim; 
         }
 
-        // ─────────────────────────────────────────────────────────────────────
+     
         // GET api/paciente/padecimientos
-        // Retorna los padecimientos asignados al paciente autenticado
-        // ─────────────────────────────────────────────────────────────────────
+     
         [HttpGet("padecimientos")]
         public async Task<IActionResult> GetPadecimientos()
         {
-            var pacienteId = GetPacienteId();
+          
+            var usuarioId = GetPacienteId();
 
+            var paciente = await _context.Pacientes
+                .FirstOrDefaultAsync(p => p.UsuarioId == usuarioId);
+
+            if (paciente == null)
+            {
+                return NotFound(new { message = "No se encontró el expediente del paciente asociado a esta cuenta." });
+            }
+
+          
             var datos = await _context.ExpedientePadecimientos
-                .Where(e => e.PacienteId == pacienteId)
+                .Where(e => e.PacienteId == paciente.Id) 
                 .Include(e => e.Padecimiento)
                 .Include(e => e.Medico)
                 .Select(e => new
@@ -50,8 +64,8 @@ namespace ProyectoDesarrolloSoftware.Controllers
                     e.MedicoId,
                     medicoNombre = e.Medico.NombreCompleto,
                     e.FechaAsignacion,
-                    e.Activo,
-                    e.fechaSuspension
+                    e.Suspendido,
+                    e.FechaSuspension
                 })
                 .OrderByDescending(e => e.FechaAsignacion)
                 .ToListAsync();
@@ -59,17 +73,20 @@ namespace ProyectoDesarrolloSoftware.Controllers
             return Ok(datos);
         }
 
-        // ─────────────────────────────────────────────────────────────────────
+     
         // GET api/paciente/tratamientos
-        // Retorna los tratamientos asignados al paciente autenticado
-        // ─────────────────────────────────────────────────────────────────────
+      
         [HttpGet("tratamientos")]
         public async Task<IActionResult> GetTratamientos()
         {
-            var pacienteId = GetPacienteId();
+            var usuarioId = GetPacienteId();
+
+           
+            var paciente = await _context.Pacientes
+                .FirstOrDefaultAsync(p => p.UsuarioId == usuarioId);
 
             var datos = await _context.ExpedienteTratamientos
-                .Where(e => e.PacienteId == pacienteId)
+                .Where(e => e.PacienteId == paciente.Id)
                 .Include(e => e.Tratamiento)
                 .Include(e => e.Medico)
                 .Select(e => new
@@ -91,33 +108,43 @@ namespace ProyectoDesarrolloSoftware.Controllers
             return Ok(datos);
         }
 
-        // ─────────────────────────────────────────────────────────────────────
+     
         // GET api/paciente/medicamentos
-        // Retorna los medicamentos asignados al paciente autenticado
-        // NOTA: El modelo ExpedienteMedicamento usa TratamientoId en lugar de
-        // MedicamentoId (parece un error de copia en el modelo original).
-        // Ajustar si se corrige el modelo.
-        // ─────────────────────────────────────────────────────────────────────
+ 
         [HttpGet("medicamentos")]
+       
         public async Task<IActionResult> GetMedicamentos()
         {
-            var pacienteId = GetPacienteId();
+        
+            var usuarioId = GetPacienteId();
 
+   
+            var paciente = await _context.Pacientes
+                .FirstOrDefaultAsync(p => p.UsuarioId == usuarioId);
+
+            if (paciente == null)
+            {
+                return NotFound(new { message = "No se encontró el expediente del paciente asociado a esta cuenta." });
+            }
+
+     
             var datos = await _context.ExpedienteMedicamentos
-                .Where(e => e.PacienteId == pacienteId)
-                .Include(e => e.Tratamiento)
+                .Where(e => e.PacienteId == paciente.Id)
                 .Include(e => e.Medico)
+                .Include(e => e.Medicamento) 
                 .Select(e => new
                 {
                     e.Id,
                     e.PacienteId,
-                    e.TratamientoId,
-                    tratamientoNombre = e.Tratamiento.Nombre,
                     e.MedicoId,
                     medicoNombre = e.Medico.NombreCompleto,
                     e.FechaAsignacion,
                     e.Suspendido,
-                    e.FechaSuspension
+                    e.FechaSuspension,
+
+             
+                    medicamentoNombre = e.Medicamento != null ? e.Medicamento.NombreMedicamento : "Medicamento",
+                   
                 })
                 .OrderByDescending(e => e.FechaAsignacion)
                 .ToListAsync();
@@ -125,17 +152,19 @@ namespace ProyectoDesarrolloSoftware.Controllers
             return Ok(datos);
         }
 
-        // ─────────────────────────────────────────────────────────────────────
         // GET api/paciente/historial
-        // Retorna el listado de notas del historial clínico
-        // ─────────────────────────────────────────────────────────────────────
+   
         [HttpGet("historial")]
         public async Task<IActionResult> GetHistorial()
         {
-            var pacienteId = GetPacienteId();
+            var usuarioId = GetPacienteId();
+
+          
+            var paciente = await _context.Pacientes
+                .FirstOrDefaultAsync(p => p.UsuarioId == usuarioId);
 
             var datos = await _context.HistorialClinicos
-                .Where(h => h.PacienteId == pacienteId)
+                .Where(h => h.PacienteId == paciente.Id)
                 .Include(h => h.Medico)
                 .Select(h => new
                 {
@@ -152,17 +181,19 @@ namespace ProyectoDesarrolloSoftware.Controllers
             return Ok(datos);
         }
 
-        // ─────────────────────────────────────────────────────────────────────
+      
         // GET api/paciente/historial/{id}
-        // Retorna el detalle de una nota clínica específica
-        // ─────────────────────────────────────────────────────────────────────
+   
         [HttpGet("historial/{id}")]
         public async Task<IActionResult> GetDetalleNota(int id)
         {
-            var pacienteId = GetPacienteId();
+            var usuarioId = GetPacienteId();
+
+            var paciente = await _context.Pacientes
+                .FirstOrDefaultAsync(p => p.UsuarioId == usuarioId);
 
             var nota = await _context.HistorialClinicos
-                .Where(h => h.Id == id && h.PacienteId == pacienteId)
+                .Where(h => h.Id == id && h.PacienteId == paciente.Id)
                 .Include(h => h.Medico)
                 .Select(h => new
                 {
@@ -179,58 +210,93 @@ namespace ProyectoDesarrolloSoftware.Controllers
             return Ok(nota);
         }
 
-        // ─────────────────────────────────────────────────────────────────────
+      
         // GET api/paciente/examenes
         // Retorna el listado de exámenes de laboratorio del paciente
-        // ─────────────────────────────────────────────────────────────────────
+       
         [HttpGet("examenes")]
         public async Task<IActionResult> GetExamenes()
         {
-            var pacienteId = GetPacienteId();
+            try
+            {
+                var usuarioId = GetPacienteId();
 
-            var datos = await _context.ExamenesLaboratorio
-                .Where(e => e.PacienteId == pacienteId)
-                .Include(e => e.Medico)
-                .Select(e => new
-                {
-                    e.Id,
-                    e.PacienteId,
-                    e.MedicoId,
-                    medicoNombre = e.Medico.NombreCompleto,
-                    e.Nombre,
-                    e.Descripcion,
-                    e.FechaRegistro,
-                    e.NombreArchivo
-                })
-                .OrderByDescending(e => e.FechaRegistro)
-                .ToListAsync();
+                var paciente = await _context.Pacientes
+                    .FirstOrDefaultAsync(p => p.UsuarioId == usuarioId);
 
-            return Ok(datos);
+                
+                if (paciente == null)
+                    return NotFound("El usuario actual no está registrado como un paciente válido.");
+
+                var datos = await _context.Examenes
+                    .Where(e => e.PacienteId == paciente.Id)
+                    .Include(e => e.Medico)
+                    .Select(e => new
+                    {
+                        e.Id,
+                        e.PacienteId,
+                        e.MedicoId,
+                      
+                        medicoNombre = e.Medico != null ? e.Medico.NombreCompleto : "Médico no asignado",
+                        e.Descripcion,
+                        e.FechaSubida,
+                       
+                        tipoArchivo = e.TipoArchivo ?? "pdf"
+                    })
+                    .OrderByDescending(e => e.FechaSubida)
+                    .ToListAsync();
+
+                return Ok(datos);
+            }
+            catch (Exception ex)
+            {
+                
+                Console.WriteLine($"[Error Exámenes]: {ex.Message}");
+                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
+            }
         }
 
-        // ─────────────────────────────────────────────────────────────────────
+
         // GET api/paciente/examenes/{id}/archivo
         // Descarga el PDF del examen de laboratorio
-        // ─────────────────────────────────────────────────────────────────────
         [HttpGet("examenes/{id}/archivo")]
         public async Task<IActionResult> DescargarExamen(int id)
         {
-            var pacienteId = GetPacienteId();
+            var usuarioId = GetPacienteId();
 
-            var examen = await _context.ExamenesLaboratorio
-                .FirstOrDefaultAsync(e => e.Id == id && e.PacienteId == pacienteId);
+            var paciente = await _context.Pacientes
+                .FirstOrDefaultAsync(p => p.UsuarioId == usuarioId);
+
+            if (paciente == null) return NotFound();
+
+            var examen = await _context.Examenes
+                .FirstOrDefaultAsync(e => e.Id == id && e.PacienteId == paciente.Id);
 
             if (examen == null) return NotFound();
 
-            if (!System.IO.File.Exists(examen.RutaArchivo))
-                return NotFound("El archivo no se encontró en el servidor.");
+           
+            var rutaRelativaLimpia = examen.ArchivoRuta.TrimStart('/');
+            var rutaFisicaCompleta = Path.Combine(_env.WebRootPath, rutaRelativaLimpia);
 
-            var bytes = await System.IO.File.ReadAllBytesAsync(examen.RutaArchivo);
-            var nombreDescarga = string.IsNullOrEmpty(examen.NombreArchivo)
-                ? Path.GetFileName(examen.RutaArchivo)
-                : examen.NombreArchivo;
+            if (!System.IO.File.Exists(rutaFisicaCompleta))
+                return NotFound("El archivo no se encontró físicamente en el servidor.");
 
-            return File(bytes, "application/pdf", nombreDescarga);
+      
+            var extension = Path.GetExtension(rutaFisicaCompleta).ToLowerInvariant();
+            string contentType = extension switch
+            {
+                ".pdf" => "application/pdf",
+                ".jpg" => "image/jpeg",
+                ".jpeg" => "image/jpeg",
+                ".png" => "image/png",
+                _ => "application/octet-stream"
+            };
+
+            var bytes = await System.IO.File.ReadAllBytesAsync(rutaFisicaCompleta);
+            var nombreDescarga = Path.GetFileName(rutaFisicaCompleta);
+
+           
+            return File(bytes, contentType, nombreDescarga);
         }
     }
 }
