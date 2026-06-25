@@ -19,9 +19,9 @@ namespace ProyectoDesarrolloSoftware.Models.ViewModels
         [ValidateNever]
         public string NombreCompleto { get; set; } = string.Empty;
 
-        [ValidateNever]
+        [Required(ErrorMessage = "La cédula es obligatoria")]
+        [RegularExpression(@"^\d{9}$", ErrorMessage = "La cédula debe contener exactamente 9 dígitos")]
         public string Cedula { get; set; } = string.Empty;
-
         public string? Password { get; set; }
 
         public Perfil Perfil { get; set; } = Perfil.Paciente;

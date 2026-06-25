@@ -34,7 +34,12 @@
 
                                     <div class="form-group mb-3">
                                         <label asp-for="Cedula" class="form-label small fw-bold">Cédula</label>
-                                        <input asp-for="Cedula" class="form-control" placeholder="Ej: 1-1111-1111" />
+                                        <input asp-for="Cedula" class="form-control"
+                                               placeholder="Ej: 123456789"
+                                               pattern="\d{9}"
+                                               inputmode="numeric"
+                                               maxlength="9"
+                                               title="9 dígitos sin guiones" />
                                         <span asp-validation-for="Cedula" class="text-danger small d-block mt-1"></span>
                                     </div>
                                 </div>

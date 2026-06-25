@@ -62,7 +62,11 @@
                                 </ul>
                             </li>
                         }
-
+                        @if (User.IsInRole("Paciente"))
+                        {
+                            <li><a class="dropdown-item" asp-controller="Paciente" asp-action="MiExpediente">Mi Expediente</a></li>
+                            <li><hr class="dropdown-divider" /></li>
+                        }
                     </ul>
 
                     @* Menú derecho: usuario / sesión *@

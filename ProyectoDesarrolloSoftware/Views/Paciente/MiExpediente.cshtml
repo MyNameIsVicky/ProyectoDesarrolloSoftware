@@ -1,0 +1,246 @@
+﻿@model ProyectoDesarrolloSoftware.Models.ViewModels.MiExpedienteViewModel
+@{
+    ViewData["Title"] = "Mi Expediente";
+}
+
+<div class="container mt-5">
+
+    <div class="text-center mb-5">
+        <h2 class="display-4">Mi Expediente Médico</h2>
+        <p class="text-muted lead">Centro Médico Carlos Monge Alfaro</p>
+        <hr class="w-25 mx-auto" />
+    </div>
+
+    @* Datos personales *@
+    <div class="card border-0 shadow-sm rounded-3 mb-4">
+        <div class="card-body p-4">
+            <h5 class="fw-bold mb-3">Datos Personales</h5>
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <p class="text-muted small mb-0">Nombre completo</p>
+                    <p class="fw-bold mb-0">@Model.NombreCompleto</p>
+                </div>
+                <div class="col-md-3">
+                    <p class="text-muted small mb-0">Cédula</p>
+                    <p class="fw-bold mb-0">@Model.Cedula</p>
+                </div>
+                <div class="col-md-3">
+                    <p class="text-muted small mb-0">Correo</p>
+                    <p class="fw-bold mb-0">@Model.Correo</p>
+                </div>
+                <div class="col-md-3">
+                    <p class="text-muted small mb-0">Usuario</p>
+                    <p class="fw-bold mb-0">@Model.UserName</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Padecimientos *@
+    <div class="card border-0 shadow-sm rounded-3 mb-4">
+        <div class="card-body p-4">
+            <h5 class="fw-bold mb-3">Padecimientos</h5>
+            @if (!Model.Padecimientos.Any())
+            {
+                <p class="text-muted small mb-0">No hay padecimientos registrados.</p>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Padecimiento</th>
+                                <th>Médico</th>
+                                <th>Fecha</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.Padecimientos)
+                            {
+                                <tr>
+                                    <td>@item.Padecimiento?.Nombre</td>
+                                    <td>@item.Medico?.NombreCompleto</td>
+                                    <td>@item.FechaAsignacion.ToString("dd/MM/yyyy")</td>
+                                    <td>
+                                        @if (item.Suspendido)
+                                        {
+                                            <span class="badge bg-secondary">Suspendido</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success">Activo</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+
+    @* Tratamientos *@
+    <div class="card border-0 shadow-sm rounded-3 mb-4">
+        <div class="card-body p-4">
+            <h5 class="fw-bold mb-3">Tratamientos</h5>
+            @if (!Model.Tratamientos.Any())
+            {
+                <p class="text-muted small mb-0">No hay tratamientos registrados.</p>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Tratamiento</th>
+                                <th>Médico</th>
+                                <th>Fecha</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.Tratamientos)
+                            {
+                                <tr>
+                                    <td>@item.Tratamiento?.Nombre</td>
+                                    <td>@item.Medico?.NombreCompleto</td>
+                                    <td>@item.FechaAsignacion.ToString("dd/MM/yyyy")</td>
+                                    <td>
+                                        @if (item.Suspendido)
+                                        {
+                                            <span class="badge bg-secondary">Suspendido</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success">Activo</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+
+    @* Medicamentos *@
+    <div class="card border-0 shadow-sm rounded-3 mb-4">
+        <div class="card-body p-4">
+            <h5 class="fw-bold mb-3">Medicamentos</h5>
+            @if (!Model.Medicamentos.Any())
+            {
+                <p class="text-muted small mb-0">No hay medicamentos registrados.</p>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Medicamento</th>
+                                <th>Médico</th>
+                                <th>Fecha</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.Medicamentos)
+                            {
+                                <tr>
+                                    <td>@item.Medicamento?.NombreMedicamento</td>
+                                    <td>@item.Medico?.NombreCompleto</td>
+                                    <td>@item.FechaAsignacion.ToString("dd/MM/yyyy")</td>
+                                    <td>
+                                        @if (item.Suspendido)
+                                        {
+                                            <span class="badge bg-secondary">Suspendido</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success">Activo</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+
+    @* Exámenes *@
+    <div class="card border-0 shadow-sm rounded-3 mb-4">
+        <div class="card-body p-4">
+            <h5 class="fw-bold mb-3">Exámenes Médicos</h5>
+            @if (!Model.Examenes.Any())
+            {
+                <p class="text-muted small mb-0">No hay exámenes registrados.</p>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Descripción</th>
+                                <th>Médico</th>
+                                <th>Fecha</th>
+                                <th>Archivo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.Examenes)
+                            {
+                                <tr>
+                                    <td>@item.Descripcion</td>
+                                    <td>@item.Medico?.NombreCompleto</td>
+                                    <td>@item.FechaSubida.ToString("dd/MM/yyyy")</td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(item.ArchivoRuta))
+                                        {
+                                            <a href="@item.ArchivoRuta" target="_blank" class="btn btn-outline-secondary btn-sm">Ver archivo</a>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted small">Sin archivo</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+
+    @* Historial Clínico *@
+    <div class="card border-0 shadow-sm rounded-3 mb-5">
+        <div class="card-body p-4">
+            <h5 class="fw-bold mb-3">Historial Clínico</h5>
+            @if (!Model.HistorialClinico.Any())
+            {
+                <p class="text-muted small mb-0">No hay notas clínicas registradas.</p>
+            }
+            else
+            {
+                @foreach (var item in Model.HistorialClinico)
+                {
+                    <div class="border-start border-primary border-3 ps-3 mb-3">
+                        <p class="text-muted small mb-1">
+                            @item.FechaRegistro.ToString("dd/MM/yyyy") &mdash; @item.Medico?.NombreCompleto
+                        </p>
+                        <div>@Html.Raw(item.Nota)</div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+
+</div>

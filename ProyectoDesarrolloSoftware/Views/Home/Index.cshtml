@@ -130,8 +130,13 @@
     @if (User.IsInRole("Paciente"))
     {
         <div class="text-center mt-4">
-            <p class="text-muted">Para consultas o más información, contacte a su médico tratante.</p>
+            <p class="text-muted">Consulte su expediente médico y administre sus datos personales.</p>
+            <a asp-controller="Paciente" asp-action="MiExpediente" class="btn btn-outline-primary px-4 py-2 fw-bold">
+                Ver mi expediente
+            </a>
         </div>
     }
+
+
 
 </div>
