@@ -1,4 +1,4 @@
-﻿@model ProyectoDesarrolloSoftware.Models.ViewModels.PacienteViewModel
+﻿@model ProyectoDesarrolloSoftware.Models.ViewModels.UsuarioViewModel
 @{
     ViewData["Title"] = "Registrar Paciente";
 }
@@ -31,7 +31,12 @@
 
                                 <div class="form-group mb-3">
                                     <label asp-for="Cedula" class="form-label small fw-bold">Cédula de Identidad</label>
-                                    <input asp-for="Cedula" class="form-control" placeholder="Ej: 1-1234-5678" />
+                                    <input asp-for="Cedula" class="form-control"
+                                           placeholder="Ej: 123456789"
+                                           pattern="\d{9}"
+                                           inputmode="numeric"
+                                           maxlength="9"
+                                           title="9 dígitos sin guiones" />
                                     <span asp-validation-for="Cedula" class="text-danger small d-block mt-1"></span>
                                 </div>
                             </div>
@@ -46,9 +51,9 @@
                                 </div>
 
                                 <div class="form-group mb-3">
-                                    <label asp-for="Email" class="form-label small fw-bold">Correo Electrónico</label>
-                                    <input asp-for="Email" class="form-control" placeholder="Ej: paciente@correo.com" />
-                                    <span asp-validation-for="Email" class="text-danger small d-block mt-1"></span>
+                                    <label asp-for="Correo" class="form-label small fw-bold">Correo Electrónico</label>
+                                    <input asp-for="Correo" class="form-control" placeholder="Ej: paciente@correo.com" />
+                                    <span asp-validation-for="Correo" class="text-danger small d-block mt-1"></span>
                                 </div>
 
                                 <div class="form-group mb-3">

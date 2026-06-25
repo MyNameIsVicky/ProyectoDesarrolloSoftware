@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using ProyectoDesarrolloSoftware.Data;
 using ProyectoDesarrolloSoftware.Models;
 using ProyectoDesarrolloSoftware.Models.ViewModels;
@@ -27,11 +28,9 @@ namespace ProyectoDesarrolloSoftware.Controllers
         [HttpGet]
         public IActionResult Login()
         {
-            // Si ya esta logueado, redirigue a la vista correspondiente segun el rol
-            if (User.Identity.IsAuthenticated)
-            {
-                return RedirectSegunRol();
-            }
+            if (User.Identity?.IsAuthenticated ?? false)
+                return RedirectToAction("Index", "Home");
+
             return View();
         }
 
@@ -45,22 +44,18 @@ namespace ProyectoDesarrolloSoftware.Controllers
                 return View();
             }
 
-            // Verificar si el usuario existe y está bloqueado antes de intentar el login
             var user = await _userManager.FindByNameAsync(username);
             if (user != null && await _userManager.IsLockedOutAsync(user))
             {
                 ViewBag.Error = "Su cuenta está bloqueada. Contacte a un administrador.";
                 return View();
             }
-            // Intenta iniciar sesion con el usuario y contraseña
-            // IsPersistent: false para que no recuerde la sesión después de cerrar el navegador (cookies)
-            // lockoutOnFailure: false para que no bloquee la cuenta si se falla varias veces
-            var resultado = await _signInManager.PasswordSignInAsync(username, password, isPersistent: false, lockoutOnFailure: false);
+
+            var resultado = await _signInManager.PasswordSignInAsync(
+                username, password, isPersistent: false, lockoutOnFailure: false);
 
             if (resultado.Succeeded)
-            {
-                return RedirectSegunRol();
-            }
+                return RedirectToAction("Index", "Home");
 
             ViewBag.Error = "Usuario o contraseña incorrectos.";
             return View();
@@ -71,8 +66,8 @@ namespace ProyectoDesarrolloSoftware.Controllers
         [AllowAnonymous]
         public IActionResult Registrar()
         {
-            if (User.Identity.IsAuthenticated)
-                return RedirectSegunRol();
+            if (User.Identity?.IsAuthenticated ?? false)
+                return RedirectToAction("Index", "Home");
 
             return View("RegistroPaciente", new RegistroPacienteViewModel());
         }
@@ -86,16 +81,22 @@ namespace ProyectoDesarrolloSoftware.Controllers
             if (await _userManager.FindByEmailAsync(vm.Email) != null)
                 ModelState.AddModelError(nameof(vm.Email), "Ya existe una cuenta registrada con ese correo.");
 
+            var cedulaExiste = await _context.Users
+                .AnyAsync(u => u.Cedula == vm.Cedula);
+
+            if (cedulaExiste)
+                ModelState.AddModelError(nameof(vm.Cedula), "Ya existe un usuario con esa cédula.");
+
             if (!ModelState.IsValid)
                 return View("RegistroPaciente", vm);
 
             var usuario = new ApplicationUser
             {
-                UserName = vm.Email,
+                UserName = vm.UserName,
                 Email = vm.Email,
                 NombreCompleto = vm.NombreCompleto,
                 Cedula = vm.Cedula,
-                Perfil = Perfil.Paciente // AJUSTAR: verificar que tu enum Perfil tenga este valor
+                Perfil = Perfil.Paciente
             };
 
             var resultado = await _userManager.CreateAsync(usuario, vm.Password);
@@ -107,7 +108,7 @@ namespace ProyectoDesarrolloSoftware.Controllers
                 return View("RegistroPaciente", vm);
             }
 
-            await _userManager.AddToRoleAsync(usuario, "Paciente");
+            await _userManager.AddToRoleAsync(usuario, Perfil.Paciente.ToString());
 
             _context.Pacientes.Add(new Paciente { UsuarioId = usuario.Id });
             await _context.SaveChangesAsync();
@@ -126,27 +127,7 @@ namespace ProyectoDesarrolloSoftware.Controllers
             return RedirectToAction("Login", "Cuenta");
         }
 
-        // Metodo para redirigir al usuario a la vista que le corresponde segun el rol
-        private IActionResult RedirectSegunRol()
-        {
-            if (User.IsInRole("Administrador"))
-            {
-                return RedirectToAction("VistaAdministracion", "Administracion");
-            }
-            else if (User.IsInRole("Medico"))
-            {
-                return RedirectToAction("VistaMedicos", "Medico");
-            }
-            else if (User.IsInRole("Paciente"))
-            {
-                return RedirectToAction("Index", "Home");
-            }
-
-            return RedirectToAction("Index", "Home");
-        }
-
         // GET: /Cuenta/AccesoDenegado
-        // Vista para mostrar cuando un usuario intenta acceder a una pagina sin permisos
         [AllowAnonymous]
         public IActionResult AccesoDenegado(string? returnUrl = null)
         {

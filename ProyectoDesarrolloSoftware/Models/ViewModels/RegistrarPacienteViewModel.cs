@@ -16,7 +16,7 @@ namespace ProyectoDesarrolloSoftware.Models.ViewModels
         public string NombreCompleto { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "La cédula es obligatoria")]
-        [StringLength(20)]
+        [RegularExpression(@"^\d{9}$", ErrorMessage = "La cédula debe contener exactamente 9 dígitos")]
         public string Cedula { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "El correo es obligatorio")]

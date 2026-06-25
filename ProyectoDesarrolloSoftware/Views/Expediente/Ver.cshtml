@@ -59,11 +59,11 @@
         </li>
     </ul>
 
-    <div class="tab-content border border-top-0 rounded-bottom shadow-sm bg-white p-4" id="expedienteTabsContent">
+    <div class="tab-content border border-top-0 rounded-bottom shadow-sm bg-light p-4" id="expedienteTabsContent">
 
         @*Padecimientos*@
 
-        <div class="tab-pane fade show active" id="padecimientos" role="tabpanel">
+        <div class="tab-pane fade show active " id="padecimientos" role="tabpanel">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h5 class="fw-bold mb-0">Padecimientos</h5>
                 <button class="btn btn-outline-primary btn-sm px-3" data-bs-toggle="collapse"
@@ -422,7 +422,19 @@
                                     <a href="@e.ArchivoRuta" target="_blank"
                                        class="btn btn-outline-secondary btn-sm w-100">
                                         @(esPdf ? "Ver PDF" : "Ver imagen")
-                                    </a>
+                                        <a href="@e.ArchivoRuta" target="_blank"/a>
+
+                                    <form asp-action="EliminarExamen" asp-controller="Expediente"
+                                          method="post" class="form-eliminar-examen">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@e.Id" />
+                                        <input type="hidden" name="pacienteId" value="@Model.Paciente.Id" />
+
+                                        <button type="submit" class="btn btn-outline-danger btn-sm w-100 mt-2">
+                                            Eliminar
+                                        </button>
+                                    </form>
+                                        </a>
                                 </div>
                             </div>
                         </div>
@@ -529,6 +541,28 @@
                 form.submit();
             }
         }
+
+        // SweetAlert para confirmar eliminación del examen
+        document.querySelectorAll('.form-eliminar-examen').forEach(form => {
+                        form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                    Swal.fire({
+                    title: '¿Eliminar examen?',
+                    text: 'Esta acción eliminará permanentemente el archivo.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar',
+                    confirmButtonColor: '#dc3545'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+
+        });
+
     </script>
 
     @if (TempData["SuccessMessage"] != null)
