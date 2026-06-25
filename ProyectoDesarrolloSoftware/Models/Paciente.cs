@@ -8,7 +8,7 @@ namespace ProyectoDesarrolloSoftware.Models
     {
         public int Id { get; set; }
 
-        // FK obligatoria, un paciente siempre tiene cuenta de usuario
+        // FK obligatoria — un paciente siempre tiene cuenta de usuario
         [Required]
         public string UsuarioId { get; set; } = string.Empty;
 

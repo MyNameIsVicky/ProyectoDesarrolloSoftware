@@ -1,0 +1,43 @@
+﻿@model ProyectoDesarrolloSoftware.Models.Paciente
+@{
+    ViewData["Title"] = "Eliminar Paciente";
+}
+
+<div class="container mt-5">
+    <div class="text-center mb-4">
+        <h2 class="text-danger fw-bold display-5">¿Está seguro de eliminar este registro?</h2>
+        <p class="text-muted lead">Esta acción eliminará permanentemente al paciente y sus credenciales de acceso.</p>
+        <hr class="w-25 mx-auto text-danger" />
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card border-0 shadow-sm rounded-3 p-4">
+                <h4 class="fs-4 text-secondary fw-bold mb-3 text-center">Detalles del Paciente</h4>
+
+                <dl class="row mb-4">
+                    <dt class="col-sm-4 fw-bold">Nombre:</dt>
+                    <dd class="col-sm-8">@Model.Usuario?.NombreCompleto</dd>
+
+                    <dt class="col-sm-4 fw-bold">Cédula:</dt>
+                    <dd class="col-sm-8">@Model.Usuario?.Cedula</dd>
+
+                    <dt class="col-sm-4 fw-bold">Correo:</dt>
+                    <dd class="col-sm-8">@Model.Usuario?.Email</dd>
+                </dl>
+
+                <div class="alert alert-warning small border-0 rounded-2 py-2">
+                    <strong>Advertencia:</strong> También se eliminará el usuario de acceso asociado a este paciente.
+                </div>
+
+                <form asp-action="Delete">
+                    <input type="hidden" asp-for="Id" />
+                    <div class="d-flex flex-column flex-md-row gap-2 mt-3">
+                        <button type="submit" class="btn btn-outline-danger py-2 fw-bold flex-fill rounded-2">Sí, Eliminar</button>
+                        <a asp-action="Index" class="btn btn-outline-info py-2 fw-bold flex-fill rounded-2">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

@@ -8,8 +8,10 @@ using ProyectoDesarrolloSoftware.Models.ViewModels;
 
 namespace ProyectoDesarrolloSoftware.Controllers
 {
-     [Authorize]
-    [Authorize]
+    // NOTA: este controller asume que en tu ApplicationDbContext los DbSet se llaman:
+    // Pacientes, ExpedientePadecimientos, ExpedienteTratamientos, ExpedienteMedicamentos,
+    // Examenes y HistorialesClinicos. Ajusta los nombres si en tu contexto son distintos.
+    [Authorize(Roles = "Administrador,Medico")]
     public class PacienteController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -21,7 +23,8 @@ namespace ProyectoDesarrolloSoftware.Controllers
             _userManager = userManager;
         }
 
-        [Authorize(Roles = "Administrador,Medico")]
+        // GET: Paciente
+        
         public async Task<IActionResult> Index(string? busqueda)
         {
             var pacientes = await _context.Pacientes
@@ -83,60 +86,36 @@ namespace ProyectoDesarrolloSoftware.Controllers
         }
 
         // GET: Paciente/Create
-        [Authorize(Roles = "Administrador,Medico")]
         public IActionResult Create()
         {
-            return View(new UsuarioViewModel());
+            return View(new PacienteViewModel());
         }
 
         // POST: Paciente/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [HttpPost]
-        [Authorize(Roles = "Administrador,Medico")]
-        public async Task<IActionResult> Create(UsuarioViewModel vm)
+        public async Task<IActionResult> Create(PacienteViewModel vm)
         {
+            ModelState.Remove("Paciente.UsuarioId");
 
-            // Validaciones básicas
+            // Validaciones basicas
+
+            if (await _userManager.FindByEmailAsync(vm.Email) != null)
+                ModelState.AddModelError(nameof(vm.Email), "Ya existe un usuario con ese correo.");
+
             if (string.IsNullOrWhiteSpace(vm.Password))
                 ModelState.AddModelError(nameof(vm.Password), "La contraseña es obligatoria.");
-
-
-            if (string.IsNullOrWhiteSpace(vm.Correo))
-                ModelState.AddModelError(nameof(vm.Correo), "El correo es obligatorio.");
-
-            if (string.IsNullOrWhiteSpace(vm.UserName))
-                ModelState.AddModelError(nameof(vm.UserName), "El nombre de usuario es obligatorio.");
-
-            // Duplicados
-            var cedulaExiste = await _context.Users
-                .AnyAsync(u => u.Cedula == vm.Cedula);
-
-            if (cedulaExiste)
-                ModelState.AddModelError(nameof(vm.Cedula), "Ya existe un usuario con esa cédula.");
-
-            var emailExiste = await _context.Users
-                .AnyAsync(u => u.Email == vm.Correo);
-
-            if (emailExiste)
-                ModelState.AddModelError(nameof(vm.Correo), "Ya existe un usuario con ese correo.");
-
-            var usernameExiste = await _context.Users
-                .AnyAsync(u => u.UserName == vm.UserName);
-
-            if (usernameExiste)
-                ModelState.AddModelError(nameof(vm.UserName), "Ya existe un usuario con ese nombre de usuario.");
 
             if (!ModelState.IsValid)
                 return View(vm);
 
             var usuario = new ApplicationUser
             {
-                UserName = vm.UserName,
-                Email = vm.Correo,
+                UserName = vm.Email,
+                Email = vm.Email,
                 NombreCompleto = vm.NombreCompleto,
                 Cedula = vm.Cedula,
-                Perfil = Perfil.Paciente
+                Perfil = Perfil.Paciente 
             };
 
             var resultado = await _userManager.CreateAsync(usuario, vm.Password!);
@@ -145,11 +124,10 @@ namespace ProyectoDesarrolloSoftware.Controllers
             {
                 foreach (var error in resultado.Errors)
                     ModelState.AddModelError("", error.Description);
-
                 return View(vm);
             }
 
-            await _userManager.AddToRoleAsync(usuario, Perfil.Paciente.ToString());
+            await _userManager.AddToRoleAsync(usuario, "Paciente");
 
             _context.Pacientes.Add(new Paciente { UsuarioId = usuario.Id });
             await _context.SaveChangesAsync();
@@ -158,60 +136,84 @@ namespace ProyectoDesarrolloSoftware.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // Paciente: ver su propio expediente (solo lectura)
-        [Authorize(Roles = "Paciente")]
-        public async Task<IActionResult> MiExpediente()
+        // GET: Paciente/Edit/5
+        public async Task<IActionResult> Edit(int id)
         {
-            var usuario = await _userManager.GetUserAsync(User);
-            if (usuario == null) return NotFound();
-
             var paciente = await _context.Pacientes
-                .FirstOrDefaultAsync(p => p.UsuarioId == usuario.Id);
-            if (paciente == null) return NotFound();
+                .Include(p => p.Usuario)
+                .FirstOrDefaultAsync(p => p.Id == id);
 
-            var vm = new MiExpedienteViewModel
+            if (paciente == null || paciente.Usuario == null) return NotFound();
+
+            var vm = new PacienteViewModel
             {
-                NombreCompleto = usuario.NombreCompleto,
-                Cedula = usuario.Cedula,
-                Correo = usuario.Email ?? "",
-                UserName = usuario.UserName ?? "",
-
-                Padecimientos = await _context.ExpedientePadecimientos
-                    .Where(x => x.PacienteId == paciente.Id)
-                    .Include(x => x.Padecimiento)
-                    .Include(x => x.Medico)
-                    .OrderByDescending(x => x.FechaAsignacion)
-                    .ToListAsync(),
-
-                Tratamientos = await _context.ExpedienteTratamientos
-                    .Where(x => x.PacienteId == paciente.Id)
-                    .Include(x => x.Tratamiento)
-                    .Include(x => x.Medico)
-                    .OrderByDescending(x => x.FechaAsignacion)
-                    .ToListAsync(),
-
-                Medicamentos = await _context.ExpedienteMedicamentos
-                    .Where(x => x.PacienteId == paciente.Id)
-                    .Include(x => x.Medicamento)
-                    .Include(x => x.Medico)
-                    .OrderByDescending(x => x.FechaAsignacion)
-                    .ToListAsync(),
-
-                Examenes = await _context.Examenes
-                    .Where(x => x.PacienteId == paciente.Id)
-                    .Include(x => x.Medico)
-                    .OrderByDescending(x => x.FechaSubida)
-                    .ToListAsync(),
-
-                HistorialClinico = await _context.HistorialClinicos
-                    .Where(x => x.PacienteId == paciente.Id)
-                    .Include(x => x.Medico)
-                    .OrderByDescending(x => x.FechaRegistro)
-                    .ToListAsync()
+                Paciente = paciente,
+                UserName = paciente.Usuario.UserName ?? string.Empty,
+                NombreCompleto = paciente.Usuario.NombreCompleto,
+                Cedula = paciente.Usuario.Cedula,
+                Email = paciente.Usuario.Email ?? string.Empty
             };
 
             return View(vm);
         }
 
+        // POST: Paciente/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(PacienteViewModel vm)
+        {
+            ModelState.Remove(nameof(vm.Password));
+            
+
+            if (!ModelState.IsValid)
+                return View(vm);
+
+            var paciente = await _context.Pacientes
+                .Include(p => p.Usuario)
+                .FirstOrDefaultAsync(p => p.Id == vm.Paciente.Id);
+
+            if (paciente == null || paciente.Usuario == null) return NotFound();
+
+            paciente.Usuario.NombreCompleto = vm.NombreCompleto;
+            paciente.Usuario.Cedula = vm.Cedula;
+            paciente.Usuario.UserName = vm.UserName;
+           
+
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Paciente actualizado.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        // GET: Paciente/Delete/5
+        public async Task<IActionResult> Delete(int id)
+        {
+            var paciente = await _context.Pacientes
+                .Include(p => p.Usuario)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (paciente == null) return NotFound();
+            return View(paciente);
+        }
+
+        // POST: Paciente/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var paciente = await _context.Pacientes.FindAsync(id);
+            if (paciente == null) return NotFound();
+
+            var usuario = await _userManager.FindByIdAsync(paciente.UsuarioId);
+
+            _context.Pacientes.Remove(paciente);
+            await _context.SaveChangesAsync();
+
+            if (usuario != null)
+                await _userManager.DeleteAsync(usuario);
+
+            TempData["SuccessMessage"] = "Paciente eliminado.";
+            return RedirectToAction(nameof(Index));
+        }
     }
 }

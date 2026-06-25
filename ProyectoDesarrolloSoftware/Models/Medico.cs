@@ -20,10 +20,10 @@ namespace ProyectoDesarrolloSoftware.Models
 
 
         [Required(ErrorMessage = "La cédula es obligatoria")]
-        [RegularExpression(@"^\d{9}$", ErrorMessage = "La cédula debe contener exactamente 9 dígitos")]
-        public string CedulaFisica { get; set; } = string.Empty;
+        [StringLength(50)]
+        public string CedulaFisica { get; set; } 
 
-        public virtual IList<MedicoEspecialidad> MedicosEspecialidades { get; set; } = new List<MedicoEspecialidad>();
+                public virtual IList<MedicoEspecialidad> MedicosEspecialidades { get; set; } = new List<MedicoEspecialidad>();
     }
 }
 
