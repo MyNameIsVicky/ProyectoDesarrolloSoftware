@@ -56,47 +56,74 @@ namespace ProyectoDesarrolloSoftware.Controllers
             return View(await BuildVM(new UsuarioViewModel()));
         }
 
-        // POST: Usuario/Create
         [HttpPost]
         public async Task<IActionResult> Create(UsuarioViewModel vm)
         {
-            // Validaciones manuales para campos que dependen del perfil
+            // contra siempre obligatorio
             if (string.IsNullOrWhiteSpace(vm.Password))
                 ModelState.AddModelError(nameof(vm.Password), "La contraseña es obligatoria.");
 
+            // Validaciones base para todos los usuarios
+            if (string.IsNullOrWhiteSpace(vm.UserName))
+                ModelState.AddModelError(nameof(vm.UserName), "El nombre de usuario es obligatorio.");
+
+            if (string.IsNullOrWhiteSpace(vm.Correo))
+                ModelState.AddModelError(nameof(vm.Correo), "El correo es obligatorio.");
+
+            // Validación de duplicados
+            var usernameExiste = await _context.Users
+                .AnyAsync(u => u.NormalizedUserName == vm.UserName.ToUpper());
+
+            if (usernameExiste)
+                ModelState.AddModelError(nameof(vm.UserName), "Ya existe un usuario con ese nombre de usuario.");
+
+            var emailExiste = await _context.Users
+                .AnyAsync(u => u.NormalizedEmail == vm.Correo.ToUpper());
+
+            if (emailExiste)
+                ModelState.AddModelError(nameof(vm.Correo), "Ya existe una cuenta registrada con ese correo.");
+
+            // Solo los que no sean médicos, manejan cédula directa
             if (vm.Perfil != Perfil.Medico)
             {
-                if (string.IsNullOrWhiteSpace(vm.NombreCompleto)) { 
-                ModelState.AddModelError(nameof(vm.NombreCompleto), "El nombre completo es obligatorio.");
-            }
+                if (string.IsNullOrWhiteSpace(vm.NombreCompleto))
+                    ModelState.AddModelError(nameof(vm.NombreCompleto), "El nombre completo es obligatorio.");
+
                 if (string.IsNullOrWhiteSpace(vm.Cedula))
-                {
                     ModelState.AddModelError(nameof(vm.Cedula), "La cédula es obligatoria.");
-                }
+
+                var cedulaExiste = await _context.Users
+                    .AnyAsync(u => u.Cedula == vm.Cedula);
+
+                if (cedulaExiste)
+                    ModelState.AddModelError(nameof(vm.Cedula), "Ya existe un usuario con esa cédula.");
             }
 
-            if (!ModelState.IsValid)
-                return View(await BuildVM(vm));
-
-            // Para médico, NombreCompleto y Cedula vienen de la entidad Medico
+            // Validar el médico
             if (vm.Perfil == Perfil.Medico)
             {
                 if (!vm.MedicoId.HasValue)
                 {
                     ModelState.AddModelError(nameof(vm.MedicoId), "Debe seleccionar un médico tratante.");
-                    return View(await BuildVM(vm));
                 }
-
-                var medicoData = await _context.Medicos.FindAsync(vm.MedicoId.Value);
-                if (medicoData == null)
+                else
                 {
-                    ModelState.AddModelError(nameof(vm.MedicoId), "El médico seleccionado no existe.");
-                    return View(await BuildVM(vm));
-                }
+                    var medicoData = await _context.Medicos.FindAsync(vm.MedicoId.Value);
 
-                vm.NombreCompleto = medicoData.NombreCompleto;
-                vm.Cedula = medicoData.CedulaFisica;
+                    if (medicoData == null)
+                    {
+                        ModelState.AddModelError(nameof(vm.MedicoId), "El médico seleccionado no existe.");
+                    }
+                    else
+                    {
+                        vm.NombreCompleto = medicoData.NombreCompleto;
+                        vm.Cedula = medicoData.CedulaFisica;
+                    }
+                }
             }
+
+            if (!ModelState.IsValid)
+                return View(await BuildVM(vm));
 
             var user = new ApplicationUser
             {
@@ -125,9 +152,9 @@ namespace ProyectoDesarrolloSoftware.Controllers
                 _context.Pacientes.Add(new Paciente { UsuarioId = user.Id });
                 await _context.SaveChangesAsync();
             }
-            else if (vm.Perfil == Perfil.Medico)
+            else if (vm.Perfil == Perfil.Medico && vm.MedicoId.HasValue)
             {
-                user.MedicoId = vm.MedicoId!.Value;
+                user.MedicoId = vm.MedicoId.Value;
                 await _userManager.UpdateAsync(user);
             }
 
@@ -170,6 +197,42 @@ namespace ProyectoDesarrolloSoftware.Controllers
             {
                 return NotFound();
             }
+
+            // Verificar si la cédula ya existe en otro usuario
+            var cedulaExiste = await _context.Users
+                .AnyAsync(u => u.Cedula == vm.Cedula && u.Id != vm.Id);
+
+            if (cedulaExiste)
+            {
+                ModelState.AddModelError(nameof(vm.Cedula), "Ya existe un usuario con esa cédula.");
+                return View(await BuildVM(vm));
+            }
+
+            // Verificar si ya existe un usuario con el mismo correo
+            var emailExiste = await _context.Users
+                .AnyAsync(u => u.NormalizedEmail == vm.Correo.ToUpper() && u.Id != vm.Id);
+
+            if (emailExiste)
+            {
+                ModelState.AddModelError(nameof(vm.Correo), "Ya existe una cuenta registrada con ese correo.");
+                return View(await BuildVM(vm));
+            }
+
+            // Verificar si ya existe un usuario con ese nombre de usuario
+
+            var usernameExiste = await _context.Users
+                .AnyAsync(u => u.NormalizedUserName == vm.UserName.ToUpper() && u.Id != vm.Id);
+
+            if (usernameExiste)
+            {
+                ModelState.AddModelError(nameof(vm.UserName), "Ya existe un usuario con ese nombre de usuario.");
+                return View(await BuildVM(vm));
+            }
+
+            // Que no hayan errores
+            if (!ModelState.IsValid)
+                return View(await BuildVM(vm));
+
             user.UserName = vm.UserName;
             user.Email = vm.Correo;
             user.NombreCompleto = vm.NombreCompleto;
@@ -184,7 +247,7 @@ namespace ProyectoDesarrolloSoftware.Controllers
 
                 return View(await BuildVM(vm));
             }
-            // Contraseña 
+
             if (!string.IsNullOrWhiteSpace(vm.Password))
             {
                 var token = await _userManager.GeneratePasswordResetTokenAsync(user);
@@ -223,6 +286,7 @@ namespace ProyectoDesarrolloSoftware.Controllers
             {
                 Id = user.Id,
                 UserName = user.UserName ?? "",
+                Cedula = user.Cedula,
                 NombreCompleto = user.NombreCompleto,
                 Correo = user.Email ?? "",
                 Perfil = user.Perfil,
@@ -256,6 +320,7 @@ namespace ProyectoDesarrolloSoftware.Controllers
             TempData["SuccessMessage"] = "Usuario eliminado correctamente.";
             return RedirectToAction(nameof(Index));
         }
+
 
         // Método privado para construir el ViewModel con la lista de médicos
         private async Task<UsuarioViewModel> BuildVM(UsuarioViewModel vm)

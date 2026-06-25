@@ -53,19 +53,28 @@
                             <td class="text-end">
                                 <div class="d-flex gap-2 justify-content-end">
                                     <a asp-action="Edit" asp-controller="Usuario" asp-route-id="@u.Id"
-                                       class="btn btn-outline-primary btn-sm px-3">Editar</a>
+                                       class="btn btn-outline-primary btn-sm px-3">
+                                        Editar
+                                    </a>
 
-                                    <form asp-action="ToggleBloqueo" asp-controller="Usuario"
-                                          method="post" style="display:inline;">
-                                        <input type="hidden" name="id" value="@u.Id" />
-                                        <button type="submit"
-                                                class="btn btn-sm px-3 @(u.Bloqueado ? "btn-outline-success" : "btn-outline-secondary")">
-                                            @(u.Bloqueado ? "Desbloquear" : "Bloquear")
-                                        </button>
-                                    </form>
+                                    @* Los administradores no se pueden bloquear *@
+                                    @if (u.Perfil != ProyectoDesarrolloSoftware.Models.Perfil.Administrador)
+                                    {
+                                        <form asp-action="ToggleBloqueo" asp-controller="Usuario"
+                                              method="post" style="display:inline;">
+                                            <input type="hidden" name="id" value="@u.Id" />
+                                            <button type="submit"
+                                                    class="btn btn-sm px-3 @(u.Bloqueado ? "btn-outline-success" : "btn-outline-secondary")">
+                                                @(u.Bloqueado ? "Desbloquear" : "Bloquear")
+                                            </button>
+                                        </form>
 
-                                    <a asp-action="Delete" asp-controller="Usuario" asp-route-id="@u.Id"
-                                       class="btn btn-outline-danger btn-sm px-3">Eliminar</a>
+                                        @* Los administradores no se pueden eliminar *@
+                                        <a asp-action="Delete" asp-controller="Usuario" asp-route-id="@u.Id"
+                                           class="btn btn-outline-danger btn-sm px-3">
+                                            Eliminar
+                                        </a>
+                                    }
                                 </div>
                             </td>
                         </tr>
@@ -76,8 +85,8 @@
     </div>
 
     <div class="text-center mb-5">
-        <a class="btn btn-outline-light px-4 shadow-sm" href="/Administracion/VistaAdministracion" role="button">
-            Volver al Panel de Administración
+        <a class="btn btn-outline-light px-4 shadow-sm" href="/Home/Index" role="button">
+            Volver al Menú Principal
         </a>
     </div>
 </div>
