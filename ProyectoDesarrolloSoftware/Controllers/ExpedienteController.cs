@@ -12,7 +12,7 @@ using ProyectoDesarrolloSoftware.Models.ViewModels;
 namespace ProyectoDesarrolloSoftware.Controllers
 {
     // Permiso para que solo el médico pueda agregar/suspender cosas del expediente o escribir notas 
-    [Authorize(Roles = "Medico, Administrador")]
+    [Authorize(Roles = "Medico")]
     public class ExpedienteController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -76,12 +76,14 @@ namespace ProyectoDesarrolloSoftware.Controllers
                     .OrderByDescending(x => x.FechaSubida)
                     .ToListAsync(),
 
+                // Punto III: más reciente primero
                 HistorialClinico = await _context.HistorialClinicos
                     .Include(x => x.Medico)
                     .Where(x => x.PacienteId == pacienteId)
                     .OrderByDescending(x => x.FechaRegistro)
                     .ToListAsync(),
-                
+                // Ca
+
                 PadecimientosCatalogo = await _context.Padecimientos
                     .Select(p => new SelectListItem { Value = p.Id.ToString(), Text = p.Nombre })
                     .ToListAsync(),
@@ -286,39 +288,6 @@ namespace ProyectoDesarrolloSoftware.Controllers
             await _context.SaveChangesAsync();
             TempData["SuccessMessage"] = "Examen agregado al expediente.";
             return RedirectToAction(nameof(Ver), new { pacienteId = vm.PacienteId });
-        }
-
-        // POST: Eliminar examen
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EliminarExamen(int id, int pacienteId)
-        {
-            var examen = await _context.Examenes.FindAsync(id);
-
-            if (examen == null)
-                return NotFound();
-
-            // Eliminar archivo físico
-            if (!string.IsNullOrWhiteSpace(examen.ArchivoRuta))
-            {
-                var ruta = Path.Combine(
-                    _env.WebRootPath,
-                    examen.ArchivoRuta.TrimStart('/').Replace("/", Path.DirectorySeparatorChar.ToString())
-                );
-
-                if (System.IO.File.Exists(ruta))
-                {
-                    System.IO.File.Delete(ruta);
-                }
-            }
-
-            // Eliminar registro de la BD
-            _context.Examenes.Remove(examen);
-            await _context.SaveChangesAsync();
-
-            TempData["SuccessMessage"] = "Examen eliminado correctamente.";
-
-            return RedirectToAction(nameof(Ver), new { pacienteId });
         }
 
         // POST: Agregar nota al historial clínico
