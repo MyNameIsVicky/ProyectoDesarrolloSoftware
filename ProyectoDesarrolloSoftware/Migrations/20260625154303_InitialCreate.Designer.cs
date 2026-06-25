@@ -12,8 +12,8 @@ using ProyectoDesarrolloSoftware.Data;
 namespace ProyectoDesarrolloSoftware.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260623054936_Actualizacion de BD")]
-    partial class ActualizaciondeBD
+    [Migration("20260625154303_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -259,7 +259,85 @@ namespace ProyectoDesarrolloSoftware.Migrations
                     b.ToTable("Especialidades");
                 });
 
+            modelBuilder.Entity("ProyectoDesarrolloSoftware.Models.Expedientes.ExamenMedico", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ArchivoRuta")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Descripcion")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime>("FechaSubida")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("MedicoId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PacienteId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TipoArchivo")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MedicoId");
+
+                    b.HasIndex("PacienteId");
+
+                    b.ToTable("Examenes");
+                });
+
             modelBuilder.Entity("ProyectoDesarrolloSoftware.Models.Expedientes.ExpedienteMedicamento", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("FechaAsignacion")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("FechaSuspension")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("MedicamentoId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MedicoId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PacienteId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Suspendido")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MedicamentoId");
+
+                    b.HasIndex("MedicoId");
+
+                    b.HasIndex("PacienteId");
+
+                    b.ToTable("ExpedienteMedicamentos");
+                });
+
+            modelBuilder.Entity("ProyectoDesarrolloSoftware.Models.Expedientes.ExpedientePadecimiento", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -279,48 +357,11 @@ namespace ProyectoDesarrolloSoftware.Migrations
                     b.Property<int>("PacienteId")
                         .HasColumnType("int");
 
-                    b.Property<bool>("Suspendido")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("TratamientoId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MedicoId");
-
-                    b.HasIndex("PacienteId");
-
-                    b.HasIndex("TratamientoId");
-
-                    b.ToTable("ExpedienteMedicamentos");
-                });
-
-            modelBuilder.Entity("ProyectoDesarrolloSoftware.Models.Expedientes.ExpedientePadecimiento", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("Activo")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("FechaAsignacion")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("MedicoId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("PacienteId")
-                        .HasColumnType("int");
-
                     b.Property<int>("PadecimientoId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("fechaSuspension")
-                        .HasColumnType("datetime2");
+                    b.Property<bool>("Suspendido")
+                        .HasColumnType("bit");
 
                     b.HasKey("Id");
 
@@ -410,8 +451,7 @@ namespace ProyectoDesarrolloSoftware.Migrations
 
                     b.Property<string>("CedulaFisica")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FotoUrl")
                         .IsRequired()
@@ -588,8 +628,33 @@ namespace ProyectoDesarrolloSoftware.Migrations
                     b.Navigation("Medico");
                 });
 
+            modelBuilder.Entity("ProyectoDesarrolloSoftware.Models.Expedientes.ExamenMedico", b =>
+                {
+                    b.HasOne("ProyectoDesarrolloSoftware.Models.Medico", "Medico")
+                        .WithMany()
+                        .HasForeignKey("MedicoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ProyectoDesarrolloSoftware.Models.Paciente", "Paciente")
+                        .WithMany()
+                        .HasForeignKey("PacienteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Medico");
+
+                    b.Navigation("Paciente");
+                });
+
             modelBuilder.Entity("ProyectoDesarrolloSoftware.Models.Expedientes.ExpedienteMedicamento", b =>
                 {
+                    b.HasOne("ProyectoDesarrolloSoftware.Models.ModuloMedicina.Medicamento", "Medicamento")
+                        .WithMany()
+                        .HasForeignKey("MedicamentoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("ProyectoDesarrolloSoftware.Models.Medico", "Medico")
                         .WithMany()
                         .HasForeignKey("MedicoId")
@@ -602,17 +667,11 @@ namespace ProyectoDesarrolloSoftware.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ProyectoDesarrolloSoftware.Models.ModuloMedicina.Tratamiento", "Tratamiento")
-                        .WithMany()
-                        .HasForeignKey("TratamientoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("Medicamento");
 
                     b.Navigation("Medico");
 
                     b.Navigation("Paciente");
-
-                    b.Navigation("Tratamiento");
                 });
 
             modelBuilder.Entity("ProyectoDesarrolloSoftware.Models.Expedientes.ExpedientePadecimiento", b =>
@@ -623,7 +682,7 @@ namespace ProyectoDesarrolloSoftware.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ProyectoDesarrolloSoftware.Models.Paciente", null)
+                    b.HasOne("ProyectoDesarrolloSoftware.Models.Paciente", "Paciente")
                         .WithMany("Padecimientos")
                         .HasForeignKey("PacienteId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -636,6 +695,8 @@ namespace ProyectoDesarrolloSoftware.Migrations
                         .IsRequired();
 
                     b.Navigation("Medico");
+
+                    b.Navigation("Paciente");
 
                     b.Navigation("Padecimiento");
                 });

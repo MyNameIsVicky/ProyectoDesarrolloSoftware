@@ -256,48 +256,6 @@ namespace ProyectoDesarrolloSoftware.Migrations
                     b.ToTable("Especialidades");
                 });
 
-            modelBuilder.Entity("ProyectoDesarrolloSoftware.Models.Expedientes.ExamenLaboratorio", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Descripcion")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("FechaRegistro")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("MedicoId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Nombre")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NombreArchivo")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("PacienteId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("RutaArchivo")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MedicoId");
-
-                    b.HasIndex("PacienteId");
-
-                    b.ToTable("ExamenesLaboratorio");
-                });
-
             modelBuilder.Entity("ProyectoDesarrolloSoftware.Models.Expedientes.ExamenMedico", b =>
                 {
                     b.Property<int>("Id")
@@ -490,8 +448,7 @@ namespace ProyectoDesarrolloSoftware.Migrations
 
                     b.Property<string>("CedulaFisica")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FotoUrl")
                         .IsRequired()
@@ -666,25 +623,6 @@ namespace ProyectoDesarrolloSoftware.Migrations
                         .HasForeignKey("MedicoId");
 
                     b.Navigation("Medico");
-                });
-
-            modelBuilder.Entity("ProyectoDesarrolloSoftware.Models.Expedientes.ExamenLaboratorio", b =>
-                {
-                    b.HasOne("ProyectoDesarrolloSoftware.Models.Medico", "Medico")
-                        .WithMany()
-                        .HasForeignKey("MedicoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ProyectoDesarrolloSoftware.Models.Paciente", "Paciente")
-                        .WithMany()
-                        .HasForeignKey("PacienteId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Medico");
-
-                    b.Navigation("Paciente");
                 });
 
             modelBuilder.Entity("ProyectoDesarrolloSoftware.Models.Expedientes.ExamenMedico", b =>

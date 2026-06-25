@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProyectoDesarrolloSoftware.Data;
-using ProyectoDesarrolloSoftware.Migrations;
+
 using ProyectoDesarrolloSoftware.Models;
 
 namespace ProyectoDesarrolloSoftware.Controllers
