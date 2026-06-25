@@ -21,7 +21,6 @@ namespace ProyectoDesarrolloSoftware.Controllers
             _userManager = userManager;
         }
 
-        // Médico y Administrador: ver listado con última fecha de atención
         [Authorize(Roles = "Administrador,Medico")]
         public async Task<IActionResult> Index(string? busqueda)
         {
@@ -83,7 +82,81 @@ namespace ProyectoDesarrolloSoftware.Controllers
             return View(lista);
         }
 
+        // GET: Paciente/Create
+        [Authorize(Roles = "Administrador,Medico")]
+        public IActionResult Create()
+        {
+            return View(new UsuarioViewModel());
+        }
 
+        // POST: Paciente/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [HttpPost]
+        [Authorize(Roles = "Administrador,Medico")]
+        public async Task<IActionResult> Create(UsuarioViewModel vm)
+        {
+
+            // Validaciones básicas
+            if (string.IsNullOrWhiteSpace(vm.Password))
+                ModelState.AddModelError(nameof(vm.Password), "La contraseña es obligatoria.");
+
+
+            if (string.IsNullOrWhiteSpace(vm.Correo))
+                ModelState.AddModelError(nameof(vm.Correo), "El correo es obligatorio.");
+
+            if (string.IsNullOrWhiteSpace(vm.UserName))
+                ModelState.AddModelError(nameof(vm.UserName), "El nombre de usuario es obligatorio.");
+
+            // Duplicados
+            var cedulaExiste = await _context.Users
+                .AnyAsync(u => u.Cedula == vm.Cedula);
+
+            if (cedulaExiste)
+                ModelState.AddModelError(nameof(vm.Cedula), "Ya existe un usuario con esa cédula.");
+
+            var emailExiste = await _context.Users
+                .AnyAsync(u => u.Email == vm.Correo);
+
+            if (emailExiste)
+                ModelState.AddModelError(nameof(vm.Correo), "Ya existe un usuario con ese correo.");
+
+            var usernameExiste = await _context.Users
+                .AnyAsync(u => u.UserName == vm.UserName);
+
+            if (usernameExiste)
+                ModelState.AddModelError(nameof(vm.UserName), "Ya existe un usuario con ese nombre de usuario.");
+
+            if (!ModelState.IsValid)
+                return View(vm);
+
+            var usuario = new ApplicationUser
+            {
+                UserName = vm.UserName,
+                Email = vm.Correo,
+                NombreCompleto = vm.NombreCompleto,
+                Cedula = vm.Cedula,
+                Perfil = Perfil.Paciente
+            };
+
+            var resultado = await _userManager.CreateAsync(usuario, vm.Password!);
+
+            if (!resultado.Succeeded)
+            {
+                foreach (var error in resultado.Errors)
+                    ModelState.AddModelError("", error.Description);
+
+                return View(vm);
+            }
+
+            await _userManager.AddToRoleAsync(usuario, Perfil.Paciente.ToString());
+
+            _context.Pacientes.Add(new Paciente { UsuarioId = usuario.Id });
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Paciente registrado correctamente.";
+            return RedirectToAction(nameof(Index));
+        }
 
         // Paciente: ver su propio expediente (solo lectura)
         [Authorize(Roles = "Paciente")]
